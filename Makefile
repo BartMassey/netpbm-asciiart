@@ -1,4 +1,4 @@
-LIBS =  -lnetpbm -lnetpgm
+LIBS = -lnetpbm
 
 TARGETS = asciitopbm asciitopgm pgmtoascii
 
