@@ -3,8 +3,8 @@
 #include <assert.h>
 #include "pgm.h"
 
-/* the default 64 gray-level */
-char *scalechars = " .`,~-^:;+<!|i/*=([}?rvuatpdqbO0I7lYC39ZVGD8EFUghkwmHXAQNKRBWM&#";
+/* the default 32 gray-level */
+char *scalechars = " .`,-~:;^!|/(<+*[}?7Y3O0C98BWM&#";
 char *scale;		/* for pointing to the gray-level being used */
 int maxscale;		/* length of scale (i.e. gray-levels available) */
 char *progname;         /* basename of invoked program */
