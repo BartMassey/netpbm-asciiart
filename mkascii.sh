@@ -56,7 +56,7 @@ pnmquant -nofs -meanpixel 32 2>/dev/null |
 if $PREVIEW
 then
     pnmscale -width $PWIDTH |
-    pnmscale -xscale 1.0 -yscale 2.5
+    pnmscale -xscale 1.0 -yscale `awk "END { print 1.0 / $YSCALE; }" </dev/null`
 else
     pgmtoascii
 fi
