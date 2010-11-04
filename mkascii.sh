@@ -1,9 +1,10 @@
 #!/bin/sh
 PGM="`basename $0`"
-USAGE="$PGM: usage: $PGM [-w <width>] [-y <yscale>] [<jpeg-file>]"
+USAGE="$PGM: usage: $PGM [-w <width>] [-y <yscale>] [-p <pwidth>]"
 
 YSCALE=0.4
 WIDTH=132
+PREVIEW=false
 
 while [ $# -gt 0 ]
 do
@@ -26,6 +27,11 @@ do
 	YSCALE=$2
 	shift 2
 	;;
+    -p)
+	PREVIEW=true
+	PWIDTH=$2
+	shift 2
+	;;
     -*)
 	echo "$USAGE" >&2
 	exit 1
@@ -42,10 +48,15 @@ then
     exit 1
 fi
 
-djpeg $1 |
 ppmtopgm |
-pgmenhance |
-pnmscale -xscale=1 -yscale="$YSCALE" |
-pnmscale -width="$WIDTH" |
+pnmscale -xscale 1.0 -yscale "$YSCALE" |
+pnmscale -width "$WIDTH" |
 pnmnorm -wpercent 10 -bpercent 1 2>/dev/null |
-pgmtoascii
+pnmquant -nofs -meanpixel 32 2>/dev/null |
+if $PREVIEW
+then
+    pnmscale -width $PWIDTH |
+    pnmscale -xscale 1.0 -yscale 2.5
+else
+    pgmtoascii
+fi
