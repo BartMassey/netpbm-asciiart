@@ -1,6 +1,6 @@
-These are really really old programs that I wrote.  OK, I'm
-not actually positive I wrote asciitopbm.c, but I think I
-did.  The idea is to convert between ASCII and PNM.
+These are really really old programs that I wrote.  The idea
+is to convert between ASCII and PNM.  My asciitopgm, BTW, is
+way better than the one in netpbm.
 
 There's no manual pages here, though there should be. Things
 are maybe clear enough.
