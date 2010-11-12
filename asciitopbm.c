@@ -34,8 +34,8 @@ char *gp;		/* array index */
 FILE *fp;	        /* input file */
 int maxlinelen;		/* width in chars */
 int numlines;		/* height in chars */
-int pix_width = 4;	/* char width in pixels */
-int pix_height = 6;	/* char height in pixels */
+int pix_width = 5;	/* char width in pixels */
+int pix_height = 12;	/* char height in pixels */
 double sscreen = 0.01;  /* scaled screen value */
 double scontrast = 0.70;  /* scaled contrast value */
 int screen, contrast;	/* relative to maxscale */
@@ -216,27 +216,29 @@ char *argv[];
 	else
 	    goto usage;
 	while( argc > 1 && argv[1][0] == '-' ) {
-		switch( argv[1][1] ) {
-		case 'h':
-		    goto usage;
-		}
-		if( (argv[1][1] && argv[1][2]) || argc < 3 )
-			goto usage;
-		switch( argv[1][1] ) {
-		case 'm':
-			sscreen = atof( argv[2] );
-			break;
-		case 'c':
-			scontrast = atof( argv[2] );
-			break;
-		case 's':
-			scalechars = argv[2];
-			break;
-		default:
-			goto usage;
-		}
-		argv += 2;
-		argc -= 2;
+            if( (argv[1][1] && argv[1][2]) || argc < 3 )
+                goto usage;
+            switch( argv[1][1] ) {
+            case 'w':
+                pix_width = atoi( argv[2] );
+                break;
+            case 'h':
+                pix_height = atoi( argv[2] );
+                break;
+            case 'm':
+                sscreen = atof( argv[2] );
+                break;
+            case 'c':
+                scontrast = atof( argv[2] );
+                break;
+            case 's':
+                scalechars = argv[2];
+                break;
+            default:
+                goto usage;
+            }
+            argv += 2;
+            argc -= 2;
 	}
 	if( argc == 2 ) {
 		fp = fopen( argv[1], "r" );
@@ -296,7 +298,7 @@ char *argv[];
 	}
 	exit(0);
 usage:
-	fprintf( stderr, "%s: usage: [asciitopbm|asciitopgm] [-c contrast] [-m mesh] [-s scale] [file]\n", progname );
+	fprintf( stderr, "%s: usage: [asciitopbm|asciitopgm] [-w cell-width] [-h cell-height] [-c contrast] [-m mesh] [-s scale] [file]\n", progname );
 	exit(1);
 	/*NOTREACHED*/
 }
