@@ -24,6 +24,9 @@ int glyphshade(cairo_t *cr, char ch, double inkwidth, double inkheight) {
     int stride;
     int t = 0;
     int x, y;
+#ifdef DEBUG_TRAVERSE
+    unsigned char z;
+#endif
 
     s[0] = ch;
     s[1] = '\0';
@@ -38,15 +41,49 @@ int glyphshade(cairo_t *cr, char ch, double inkwidth, double inkheight) {
     assert(sd);
     stride = cairo_image_surface_get_stride(su);
     for (y = 0; y < inkheight; y++) {
-        for (x = 0; x < inkwidth / 8; x++)
+        for (x = 0; x < inkwidth / 8; x++) {
+#ifdef DEBUG_TRAVERSE
+            for (z = 1; z > 0; z <<= 1) {
+                if (sd[x] & z)
+                    printf("*");
+                else
+                    printf(" ");
+            }
+#endif
             t += popcount(sd[x]);
+        }
+#ifdef DEBUG_TRAVERSE
+        printf("\n");
+#endif
         sd += stride;
     }
     return t;
 }
 
+void usage(void) {
+    fprintf(stderr, "glyphshades: usage: glyphshades [-f font] [-s size]\n");
+    exit(1);
+}
+
+struct glyphshades {
+    char ch;
+    float gw;
+} glyphshades[95];
+
+
+
+int cgs(const void *g1, const void *g2) {
+    float gw = ((struct glyphshades *)g1)->gw - ((struct glyphshades *)g2)->gw;
+    if (gw < 0)
+        return -1;
+    if (gw == 0)
+        return 0;
+    return 1;
+}
+
 int main(int argc, char **argv) {
-    char *font_name = "Courier New";
+    char *font_name = "Bitstream Vera Sans Mono";
+    int font_size = 48;
     cairo_surface_t *su =
         cairo_image_surface_create (CAIRO_FORMAT_A1, 100, 100);
     cairo_t *cr;
@@ -55,17 +92,31 @@ int main(int argc, char **argv) {
     int gw;
     unsigned char ch;
 
-    switch(argc) {
-    case 0:
-    case 1:
-        break;
-    case 2:
-        font_name = argv[1];
-        break;
-    default:
-        fprintf(stderr, "glyphshades: usage: glyphshades [font]\n");
-        exit(1);
+    if (argc > 0) {
+        --argc;
+        argv++;
     }
+    while (argc >= 2) {
+        if (!strcmp(argv[0], "-f")) {
+            font_name = argv[1];
+            argc -= 2;
+            argv += 2;
+            continue;
+        }
+        if (!strcmp(argv[0], "-s")) {
+            font_size = atoi(argv[1]);
+            if (font_size <= 0) {
+                fprintf(stderr, "glyphshades: invalid font size\n");
+                exit(1);
+            }
+            argc -= 2;
+            argv += 2;
+            continue;
+        }
+        usage();
+    }
+    if (argc == 1)
+        usage();
     assert(su);
     cr = cairo_create (su);
     assert(cr);
@@ -83,10 +134,40 @@ int main(int argc, char **argv) {
                 inkwidth, inkheight);
         exit(1);
     }
-    for (ch = 33; ch < 127; ch++) {
+    printf("/* Fractional glyph weights for %s.\n", font_name);
+    for (ch = 32; ch < 127; ch++) {
         cairo_move_to (cr, 0.0, fe.ascent);
         gw = glyphshade(cr, ch, inkwidth, inkheight);
-        printf("%c %.5f\n", ch, gw * 255.0 / (double) (inkwidth * inkheight));
+        glyphshades[ch - 32].ch = ch;
+        glyphshades[ch - 32].gw = gw;
     }
+    qsort(glyphshades, 95, sizeof(struct glyphshades), cgs);
+    printf("   Fractions assume default leading. */\n");
+    printf("/* Output produced automatically by glyphshades. */\n");
+    printf("struct glyphshades {\n");
+    printf("    char ch;\n");
+    printf("    float w;\n");
+    printf("} glyphshades[] = {\n");
+    for (ch = 0; ch < 95; ch++) {
+        char ch_str[3];
+        float ch_gw;
+        ch_str[0] = glyphshades[ch].ch;
+        ch_str[1] = '\0';
+        switch(glyphshades[ch].ch) {
+        case '\'':
+            ch_str[0] = '\\';
+            ch_str[1] = '\'';
+            ch_str[2] = '\0';
+            break;
+        case '\\':
+            ch_str[0] = '\\';
+            ch_str[1] = '\\';
+            ch_str[2] = '\0';
+            break;
+        }
+        ch_gw = glyphshades[ch].gw / (inkwidth * fe.height);
+        printf("    {'%s', %.5f},\n", ch_str, ch_gw);
+    }
+    printf("};\n");
     exit(0);
 }
