@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     for (ch = 33; ch < 127; ch++) {
         cairo_move_to (cr, 0.0, fe.ascent);
         gw = glyphshade(cr, ch, inkwidth, inkheight);
-        printf("%c %d\n", ch, gw);
+        printf("%c %.5f\n", ch, gw * 255.0 / (double) (inkwidth * inkheight));
     }
     exit(0);
 }
