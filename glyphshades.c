@@ -45,7 +45,8 @@ int glyphshade(cairo_t *cr, char ch, double inkwidth, double inkheight) {
     return t;
 }
 
-int main() {
+int main(int argc, char **argv) {
+    char *font_name = "Courier New";
     cairo_surface_t *su =
         cairo_image_surface_create (CAIRO_FORMAT_A1, 100, 100);
     cairo_t *cr;
@@ -54,10 +55,21 @@ int main() {
     int gw;
     unsigned char ch;
 
+    switch(argc) {
+    case 0:
+    case 1:
+        break;
+    case 2:
+        font_name = argv[1];
+        break;
+    default:
+        fprintf(stderr, "glyphshades: usage: glyphshades [font]\n");
+        exit(1);
+    }
     assert(su);
     cr = cairo_create (su);
     assert(cr);
-    cairo_select_font_face (cr, "Courier New",
+    cairo_select_font_face (cr, font_name,
                             CAIRO_FONT_SLANT_NORMAL,
                             CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, 48);
