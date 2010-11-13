@@ -42,15 +42,20 @@ int glyphshade(cairo_t *cr, char ch, double inkwidth, double inkheight) {
     stride = cairo_image_surface_get_stride(su);
     for (y = 0; y < inkheight; y++) {
         for (x = 0; x < inkwidth / 8; x++) {
+            int c = popcount(sd[x]);
 #ifdef DEBUG_TRAVERSE
+            int ct = 0;
             for (z = 1; z > 0; z <<= 1) {
-                if (sd[x] & z)
+                if (sd[x] & z) {
                     printf("*");
-                else
+                    ct++;
+                } else {
                     printf(" ");
+                }
             }
+            assert(ct == c);
 #endif
-            t += popcount(sd[x]);
+            t += c;
         }
 #ifdef DEBUG_TRAVERSE
         printf("\n");
