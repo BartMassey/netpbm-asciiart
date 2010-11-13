@@ -67,8 +67,7 @@ int x, y;  /* pixel coords */
 #define RAND(N) ((N==0)?0:(random() % (N)))
 
 /* paint a character block one "real" pixel at a time. */
-void
-paint_grays( gp )
+void paint_grays( gp )
 gray **gp;
 {
 	int i, j;
@@ -89,8 +88,7 @@ gray **gp;
 
 
 /* customized halftoning for ascii images */
-int
-halftone(g, x, y)
+int halftone(g, x, y)
 int g, x, y;
 {
     return g +                                       /* gray */
@@ -100,8 +98,7 @@ int g, x, y;
 }
      
 /* paint a character block one "real" pixel at a time. */
-void
-paint_bits( bp )
+void paint_bits( bp )
 bit **bp;
 {
 	int i, j;
@@ -126,23 +123,22 @@ bit **bp;
  * find the character pixel (chixel) in the gray-scale and return its
  * level.
  */
-int
-get_level(chixel)
+int get_level(chixel)
 char chixel;
 {
 	register int lev;
 	static int warned = 0;
 
 	for (lev=0; lev < maxscale && scale[lev] != chixel; lev++)
-		;
+		/* do nothing */;
 
 	/* if not found, then max it out. */
 	if (lev > (maxscale-1)) {
 		lev = maxscale -1;
-		if( !warned ) {
-			fprintf( stderr,
-				 "%s: warning: unexpected char '%c' (%d) in input (future warnings suppressed)\n",
-				 progname, chixel, chixel );
+		if (!warned) {
+			fprintf(stderr,
+				"%s: warning: unexpected char '%c' (%d) in input (future warnings suppressed)\n",
+				progname, chixel, chixel);
 			warned = 1;
 		}
 	}
@@ -157,38 +153,37 @@ char chixel;
  * line, returns the number of chars (counting
  * the null) in *sp, or 0 on EOF.
  */
-int
-safe_gets(sp)
+int safe_gets(sp)
 char **sp;
 {
 	int targ, res;
 	char *s, *si;
 
 	targ = maxlinelen;
-	si = s = malloc( targ );
+	si = s = malloc(targ);
 	while( 1 ) {
-		if( targ <= 0 ) {
+		if (targ <= 0) {
 			targ = 40;
 			res = si - s;
-			s = realloc( s, res + targ );
+			s = realloc(s, res + targ);
 			si = s + res;
 		}
 		targ--;
 		res = getc( fp );
-		if( res == EOF ) {
-			if( si > s )
+		if (res == EOF) {
+			if (si > s)
 				fprintf( stderr, "%s: unexpected EOF\n", progname );
 			*sp = 0;
 			return 0;
 		}
-		if( res == '\n' )
+		if (res == '\n')
 			break;
 		*si++ = res;
 	}
 	*si = '\0';
 	res = si - s + 1;
-	s = realloc( s, res );
-	if ( res > maxlinelen )
+	s = realloc(s, res);
+	if (res > maxlinelen)
 		maxlinelen = res;
 	*sp = s;
 	return res;
@@ -200,6 +195,7 @@ int argc;
 char *argv[];
 {
 	int x, y, l;
+        int maxlines = 10000;
 	char **gp;
 
 	pgm_init(&argc, argv);
@@ -215,36 +211,28 @@ char *argv[];
 	    writepgm = 0;
 	else
 	    goto usage;
-	while( argc > 1 && argv[1][0] == '-' ) {
-            if( (argv[1][1] && argv[1][2]) || argc < 3 )
-                goto usage;
-            switch( argv[1][1] ) {
-            case 'w':
+	while (argc > 1 && argv[1][0] == '-') {
+            if (!strcmp(argv[1], "-cellwidth")) {
                 pix_width = atoi( argv[2] );
-                break;
-            case 'h':
+            } else if (!strcmp(argv[1], "-cellheight")) {
                 pix_height = atoi( argv[2] );
-                break;
-            case 'm':
+            } else if (!strcmp(argv[1], "-meshsize")) {
                 sscreen = atof( argv[2] );
-                break;
-            case 'c':
+            } else if (!strcmp(argv[1], "-contrast")) {
                 scontrast = atof( argv[2] );
-                break;
-            case 's':
+            } else if (!strcmp(argv[1], "-scale")) {
                 scalechars = argv[2];
-                break;
-            default:
+            } else {
                 goto usage;
             }
             argv += 2;
             argc -= 2;
 	}
-	if( argc == 2 ) {
+	if (argc == 2) {
 		fp = fopen( argv[1], "r" );
-		if( !fp ) {
-			perror( "fopen" );
-			exit( 1 );
+		if (!fp) {
+                        perror(progname);
+			exit(1);
 		}
 		argc--;
 	}
@@ -255,14 +243,28 @@ char *argv[];
 
 	numlines = 0;
 	scale = scalechars;
-	maxscale = strlen( scale );
+	maxscale = strlen(scale);
 	contrast = (1 - scontrast) * maxscale;
 	screen = sscreen * maxscale;
-	grey = (char **) malloc( 10000 * sizeof(char *) );  /* XXX */
+	grey = (char **) malloc(maxlines * sizeof(char *));
+        if (grey == 0) {
+            perror(progname);
+            exit(1);
+        }
 	gp = grey;
 
-	while( safe_gets( gp++ ) )
+	while (safe_gets(gp++)) {
 		numlines++;
+                if (numlines >= maxlines) {
+                    maxlines += 10000;
+                    grey = realloc(grey, maxlines);
+                    if (!grey) {
+                        perror(progname);
+                        exit(1);
+                    }
+                    gp = grey + numlines;
+                }
+        }
 	maxlinelen--;  /* throw away the null */
 
 	for( y = 0; y < numlines; y++ ) {
@@ -273,7 +275,7 @@ char *argv[];
 			grey[y][x] = '\0';
 		}
 		for( x = 0; x < maxlinelen; x++ )
-			grey[y][x] = get_level( grey[y][x] );
+			grey[y][x] = get_level(grey[y][x]);
 	}
 	for( y = 0; y < numlines; y++ )
 		for( x = 0; x < maxlinelen; x++ )
@@ -281,24 +283,24 @@ char *argv[];
 	threshold /= numlines * maxlinelen;
 
 	if (writepgm) {
-	    gray **gp = pgm_allocarray( maxlinelen * pix_width,
-					numlines * pix_height );
-	    paint_grays( gp );
-	    pgm_writepgm( stdout, (gray **) gp,
+	    gray **gp = pgm_allocarray(maxlinelen * pix_width,
+					numlines * pix_height);
+	    paint_grays(gp);
+	    pgm_writepgm(stdout, (gray **) gp,
 			  maxlinelen * pix_width,
 			  numlines * pix_height,
-			  (gray) maxscale, 0 );
+			  (gray) maxscale, 0);
 	} else {
-	    bit **bp = pbm_allocarray( maxlinelen * pix_width,
-					numlines * pix_height );
-	    paint_bits( bp );
-	    pbm_writepbm( stdout, (bit **) bp,
-			  maxlinelen * pix_width,
-			  numlines * pix_height, 0 );
+	    bit **bp = pbm_allocarray(maxlinelen * pix_width,
+					numlines * pix_height);
+	    paint_bits(bp);
+	    pbm_writepbm(stdout, (bit **) bp,
+			 maxlinelen * pix_width,
+			 numlines * pix_height, 0);
 	}
 	exit(0);
 usage:
-	fprintf( stderr, "%s: usage: [asciitopbm|asciitopgm] [-w cell-width] [-h cell-height] [-c contrast] [-m mesh] [-s scale] [file]\n", progname );
+	fprintf(stderr, "%s: usage: [asciitopbm|asciitopgm] [-cellwidth <pixels>] [-cellheight <pixels>] [-c contrast <0..1>] [-mesh <0..1>] [-scale <string>] [<filename>]\n", progname);
 	exit(1);
 	/*NOTREACHED*/
 }
