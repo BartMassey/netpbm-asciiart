@@ -19,6 +19,9 @@ asciitopgm: asciitopbm
 pgmtoascii: pgmtoascii.o
 	$(CC) $(CFLAGS) -o pgmtoascii pgmtoascii.o $(LIBS)
 
+shades.c: glyphshades
+	./glypshades > shades.c
+
 glyphshades: glyphshades.o
 	$(CC) $(CFLAGS) -o glyphshades glyphshades.o -lcairo
 
