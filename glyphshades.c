@@ -66,7 +66,7 @@ int glyphshade(cairo_t *cr, char ch, double inkwidth, double inkheight) {
 }
 
 void usage(void) {
-    fprintf(stderr, "glyphshades: usage: glyphshades [-f font] [-s size]\n");
+    fprintf(stderr, "glyphshades: usage: glyphshades [-m mode] [-f font] [-s size]\n");
     exit(1);
 }
 
@@ -87,6 +87,7 @@ int cgs(const void *g1, const void *g2) {
 }
 
 int main(int argc, char **argv) {
+    char *mode = 0;
     char *font_name = "Bitstream Vera Sans Mono";
     int font_size = 48;
     cairo_surface_t *su =
@@ -118,6 +119,12 @@ int main(int argc, char **argv) {
             argv += 2;
             continue;
         }
+        if (!strcmp(argv[0], "-m")) {
+            mode = argv[1];
+            argc -= 2;
+            argv += 2;
+            continue;
+        }
         usage();
     }
     if (argc == 1)
@@ -139,7 +146,6 @@ int main(int argc, char **argv) {
                 inkwidth, inkheight);
         exit(1);
     }
-    printf("/* Fractional glyph weights for %s.\n", font_name);
     for (ch = 32; ch < 127; ch++) {
         cairo_move_to (cr, 0.0, fe.ascent);
         gw = glyphshade(cr, ch, inkwidth, inkheight);
@@ -147,32 +153,57 @@ int main(int argc, char **argv) {
         glyphshades[ch - 32].gw = gw;
     }
     qsort(glyphshades, 95, sizeof(struct glyphshades), cgs);
-    printf("   Fractions assume default leading. */\n");
-    printf("/* Output produced automatically by glyphshades. */\n");
-    printf("struct glyphshades {\n");
-    printf("    char ch;\n");
-    printf("    float w;\n");
-    printf("} glyphshades[] = {\n");
-    for (ch = 0; ch < 95; ch++) {
-        char ch_str[3];
-        float ch_gw;
-        ch_str[0] = glyphshades[ch].ch;
-        ch_str[1] = '\0';
-        switch(glyphshades[ch].ch) {
-        case '\'':
-            ch_str[0] = '\\';
-            ch_str[1] = '\'';
-            ch_str[2] = '\0';
-            break;
-        case '\\':
-            ch_str[0] = '\\';
-            ch_str[1] = '\\';
-            ch_str[2] = '\0';
-            break;
+    if (mode == 0 || !strcmp(mode, "scale")) {
+        printf("/* Scale for %s from glyphshades. */\n", font_name);
+        printf("static char *scalechars = \"");
+        for (ch = 0; ch < 95; ch++) {
+            char ch_str[3];
+            ch_str[0] = glyphshades[ch].ch;
+            ch_str[1] = '\0';
+            switch(glyphshades[ch].ch) {
+            case '"':
+                ch_str[0] = '\\';
+                ch_str[1] = '"';
+                ch_str[2] = '\0';
+                break;
+            case '\\':
+                ch_str[0] = '\\';
+                ch_str[1] = '\\';
+                ch_str[2] = '\0';
+                break;
+            }
+            printf("%s", ch_str);
         }
-        ch_gw = glyphshades[ch].gw / (inkwidth * fe.height);
-        printf("    {'%s', %.5f},\n", ch_str, ch_gw);
+        printf("\";\n");
+    } else if (!strcmp(mode, "structs")) {
+        printf("/* Fractional glyph weights for %s.\n", font_name);
+        printf("   Fractions assume default leading. */\n");
+        printf("/* Output produced automatically by glyphshades. */\n");
+        printf("struct glyphshades {\n");
+        printf("    char ch;\n");
+        printf("    float w;\n");
+        printf("} glyphshades[] = {\n");
+        for (ch = 0; ch < 95; ch++) {
+            char ch_str[3];
+            float ch_gw;
+            ch_str[0] = glyphshades[ch].ch;
+            ch_str[1] = '\0';
+            switch(glyphshades[ch].ch) {
+            case '\'':
+                ch_str[0] = '\\';
+                ch_str[1] = '\'';
+                ch_str[2] = '\0';
+                break;
+            case '\\':
+                ch_str[0] = '\\';
+                ch_str[1] = '\\';
+                ch_str[2] = '\0';
+                break;
+            }
+            ch_gw = glyphshades[ch].gw / (inkwidth * fe.height);
+            printf("    {'%s', %.5f},\n", ch_str, ch_gw);
+        }
+        printf("};\n");
     }
-    printf("};\n");
     exit(0);
 }
