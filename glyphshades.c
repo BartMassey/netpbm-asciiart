@@ -153,10 +153,11 @@ int main(int argc, char **argv) {
         glyphshades[ch - 32].gw = gw;
     }
     qsort(glyphshades, 95, sizeof(struct glyphshades), cgs);
+    assert(glyphshades[0].ch == ' ');
     if (mode == 0 || !strcmp(mode, "scale")) {
         printf("/* Scale for %s from glyphshades. */\n", font_name);
         printf("static char *scalechars = \"");
-        for (ch = 0; ch < 95; ch++) {
+        for (ch = 1; ch < 95; ch++) {
             char ch_str[3];
             ch_str[0] = glyphshades[ch].ch;
             ch_str[1] = '\0';
