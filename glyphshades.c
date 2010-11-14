@@ -1,5 +1,10 @@
 /* Copyright © 2010 Bart Massey
-   Get black density of glyphs */
+/* [This program is licensed under the "MIT License"]
+ * Please see the file COPYING in the source
+ * distribution of this software for license terms.
+ */
+
+/* Get black density of glyphs */
 
 #include <assert.h>
 #include <cairo/cairo.h>
@@ -160,7 +165,7 @@ int main(int argc, char **argv) {
         printf("/* XXX Output produced automatically by glyphshades. */\n");
         printf("#include \"glyphshades.h\"\n");
         printf("/* Scale for %s. */\n", font_name);
-        printf("static char *scalechars_%s = \"", font_tag);
+        printf("char *scalechars_%s = \"", font_tag);
         for (ch = 1; ch < 95; ch++) {
             char ch_str[3];
             ch_str[0] = glyphshades[ch].ch;

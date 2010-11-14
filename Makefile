@@ -13,7 +13,7 @@ SHADEOBJ = shades_typewriter.o shades_sans.o scale_sans.o scale_typewriter.o
 
 all: $(TARGETS) $(SHADESRC)
 
-asciitopbm: asciitopbm.o $(SHADEOBJ) glyphshades.h
+asciitopbm: asciitopbm.o $(SHADEOBJ) shades.o glyphshades.h
 	$(CC) $(CFLAGS) -o asciitopbm asciitopbm.o $(SHADEOBJ) $(LIBS)
 
 asciitopgm: asciitopbm
@@ -38,7 +38,7 @@ scale_typewriter.c: glyphshades
 scale_typewriter.o: glyphshades.h
 
 scale_sans.c: glyphshades
-	./glyphshades -m struct -f 'Bitstream Vera Sans Mono' sans > scale_sans.c
+	./glyphshades -m scale -f 'Bitstream Vera Sans Mono' sans > scale_sans.c
 
 scale_sans.o: glyphshades.h
 

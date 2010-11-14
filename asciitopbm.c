@@ -26,9 +26,6 @@
 #define INLINE  /*inline*/
 #endif
 
-/* the default 95 gray-level covering all printable ascii */
-/* Scale for Bitstream Vera Sans Mono from glyphshades. */
-static char *scalechars = "`.-',:_~\";^!/\\*r()+<>|?=clLv[]ji71TYtfJx}{snuzCIFyo%Vhkw4SeP3ZX2Ua5G$KHOAEqdbpDmQ960R&g8N#BMW@";
 int maxscale;           /* length of scale (i.e. gray-levels available) */
 int threshold;          /* cut-point */
 char **grey;            /* array of grey levels */
@@ -45,12 +42,14 @@ FILE *fp;
 int pix_width, pix_height;
 float sscreen, scontrast;
 char *scale;
+char *font_tag;
 char usage[1025];
 
 static void parse_command_line(int argc, char ** argv) {
     optEntry *option_def = malloc(100 * sizeof(optStruct));
     optStruct3 opt;
     unsigned int option_def_index;
+    int i;
 
     option_def_index = 0;
     OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
@@ -58,12 +57,14 @@ static void parse_command_line(int argc, char ** argv) {
     OPTENT3(0, "mesh", OPT_FLOAT, &sscreen, NULL, 0);
     OPTENT3(0, "contrast", OPT_FLOAT, &scontrast, NULL, 0);
     OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
+    OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
 
     pix_width = 5;
     pix_height = 12;
     sscreen = 0.01;
     scontrast = 0.70;
-    scale = scalechars;
+    scale = scalechars_sans;
+    font_tag = "sans";
 
     opt.opt_table = option_def;
     opt.short_allowed = FALSE;  /* We have no short (old-fashioned) options */
@@ -71,12 +72,20 @@ static void parse_command_line(int argc, char ** argv) {
 
     pm_optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
 
+    if (argc > 2)
+        pm_error(usage);
     if (pix_width < 0)
         pm_error("-cwidth may not be negative.");
     if (pix_height < 0)
         pm_error("-cheight may not be negative.");
-    if (argc > 2)
-        pm_error(usage);
+    for (i = 0; shades[i].font_tag; i++) {
+        if (!strcmp(font_tag, shades[i].font_tag)) {
+            scale = shades[i].scale;
+            break;
+        }
+    }
+    if (!shades[i].font_tag)
+        pm_error("unknown font tag %s", font_tag);
     if (argc == 2) {
         fp = fopen(argv[1], "r");
         if (!fp)
@@ -253,7 +262,7 @@ int main(int argc, char **argv) {
         writepgm = 0;
     else
         pm_error("asciitopbm invoked under unknown name");
-    sprintf(usage, "usage: %s [-cwidth <pixels>] [-cheight <pixels>] [-c contrast <0..1>] [-mesh <0..1>] [-scale <string>] [<filename>]\n",
+    sprintf(usage, "usage: %s [-cwidth <pixels>] [-cheight <pixels>] [-c contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [<filename>]\n",
             progname);
     parse_command_line(argc, argv);
 
