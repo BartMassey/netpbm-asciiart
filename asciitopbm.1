@@ -1,0 +1,71 @@
+.TH ASCIITOPBM 1 "14 November 2010"
+.SH NAME
+asciitopbm \- convert ASCII art to PBM
+.SH SYNOPSIS
+.B asciitopbm
+.RI [ options... ]
+.RI [ filename ]
+.SH DESCRIPTION
+.PP
+\fBasciitopbm\fP takes "ASCII art" and converts
+it to \fInetpbm\fP PBM format, expanding it in the
+process into a rectangular "output cell" per character,
+which is shaded using halftoning techniques.
+.SH USAGE
+.PP
+Options are as follows:
+.TP
+.BI "-cwidth " pixels
+Gives the pixel-width of the graphical output cell corresponding
+to a given input character.
+.TP
+.BI "-cheight " pixels
+Gives the pixel-height of the graphical output cell corresponding
+to a given input character.
+.TP
+.BI "-contrast " scale
+Sets the contrast of the output image according to the given
+\fIscale\fP factor, which should be between 0 and 1.
+.TP
+.BI "-mesh " scale
+Sets the mesh screen depth of the output image according to the given
+\fIscale\fP factor, which should be between 0 and 1.  A
+primitive mesh screen is applied to the image in an attempt
+to get better bitmap halftones.
+.TP
+.BI "-scale " string
+The given \fIstring\fP is treated as a list of ASCII
+characters by increasing black density.  The output grey
+level for an input character will be determined by the
+position of the character in this list.  Characters not in
+the list will be treated as black.  The space character is
+always white, and should be omitted.
+.TP
+.BI "-font " tag
+The given font \fItag\fP is used to determine which built-in scale to
+use. Different fonts have different character densities, so this
+argument may be useful in dealing with ASCII art that was
+produced with a particular font in mind.  Available
+font tags as of this writing are "sans", which corresponds
+to \fIBitstream Vera Sans Mono\fP, and "typewriter", which
+corresponds to \fICourier New\fP.
+.SH NOTES
+.PP
+The functionality of this program is largely
+a matter of convenience.
+For better quality, it is probably best to use \fBasciitopgm\fP
+and postprocess the result using \fInetpbm\fP.
+.PP
+The output cells of the bitmap are produced by a bilinear
+shader.  This does an OK job, but it could definitely be improved.
+.PP
+The font tones have been measured automatically by rendering
+characters. Character patterning is in no way taken into
+account in this process.
+.SH AUTHOR
+Bart Massey <bart@cs.pdx.edu>
+.SH "SEE ALSO"
+.BR asciitopgm (1),
+.BR pgmtoascii (1),
+.BR netpbm (1),
+.BR pbm (5)
