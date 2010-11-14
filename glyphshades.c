@@ -1,4 +1,4 @@
-/* Copyright © 2010 Bart Massey
+/* Copyright © 2010 Bart Massey */
 /* [This program is licensed under the "MIT License"]
  * Please see the file COPYING in the source
  * distribution of this software for license terms.
@@ -10,6 +10,7 @@
 #include <cairo/cairo.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int popcount(unsigned char ch) {
     unsigned char acc = 0;

@@ -18,7 +18,6 @@
 static int maxscale;           /* gray-levels available */
 static int threshold;          /* cut-point */
 static char **grey;            /* array of grey levels */
-static char *gp;               /* array index */
 static int maxlinelen;         /* width in chars */
 static int numlines;           /* height in chars */
 static int screen, contrast;   /* relative to maxscale */
