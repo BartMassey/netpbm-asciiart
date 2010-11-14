@@ -1,17 +1,19 @@
-These are really really old programs that I wrote, and have
-recently picked up again.  The idea is to convert between
-ASCII and PNM.  My asciitopgm, BTW, is *way* better than the
-one currently in netpbm.
+These are really really old programs that it turns out,
+after some investigation, that I wrote :-). I have recently
+picked them up again.  The idea is to convert between ASCII
+and PNM.  (My asciiarttopgm, BTW, is *way* better than the
+asciitopgm currently in netpbm.)
 
-The build process currently depends on having a development
-install of Cairo (http://cairographics.org); this is used to
-get font density information.  Of course, a development
-install of Netpbm (http://netpbm.sourceforge.net) is also
-necessary.
+Of course, a development install of Netpbm
+(http://netpbm.sourceforge.net) is necessary to build this
+stuff.  Building the included glyphshades utility, and thus
+being able to produce or reproduce shade files for font
+density information, requires a development install of Cairo
+(http://cairographics.org).
 
 This stuff represents a crazy amount of tweaking. Have fun
 doing more if you like.
 
    Bart Massey
-   bart@po8.org
-   2010/11/14
+   bart@cs.pdx.edu
+   2010/11/15

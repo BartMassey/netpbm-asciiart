@@ -68,5 +68,5 @@ then
     pnmscale -width $PWIDTH |
     pnmscale -xscale 1.0 -yscale `awk "END { print 1.0 / $YSCALE; }" </dev/null`
 else
-    pgmtoascii $REVERSE
+    pgmtoasciiart $REVERSE
 fi

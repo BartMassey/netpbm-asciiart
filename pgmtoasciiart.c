@@ -13,7 +13,7 @@
 
 #include "glyphshades.h"
 
-static char *usage = "usage: pgmtoascii [-reverse] [-f <font-tag>] [-scale <chars>] [file]";
+static char *usage = "usage: pgmtoasciiart [-reverse] [-f <font-tag>] [-scale <chars>] [file]";
 
 static int maxscale;      /* length of scale (i.e. gray-levels available) */
 static int mingrey = 1;   /* if it aint at least this, it's white */

@@ -291,16 +291,16 @@ int main(int argc, char **argv) {
     else
         progname++;
     fp = stdin;
-    if (!strcmp(progname, "asciitopgm")) {
+    if (!strcmp(progname, "asciiarttopgm")) {
         writepgm = 1;
-        usage = "usage: asciitopgm [-cwidth <pixels>] [-cheight <pixels>] [-scale <string>] [-font <font-tag>] [<filename>]";
+        usage = "usage: asciiarttopgm [-cwidth <pixels>] [-cheight <pixels>] [-scale <string>] [-font <font-tag>] [<filename>]";
         parse_pgm_command_line(argc, argv);
-    } else if (!strcmp(progname, "asciitopbm")) {
+    } else if (!strcmp(progname, "asciiarttopbm")) {
         writepgm = 0;
-        usage = "usage: asciitopbm [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [<filename>]";
+        usage = "usage: asciiarttopbm [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [<filename>]";
         parse_pbm_command_line(argc, argv);
     } else {
-        pm_error("asciitopbm invoked under unknown name");
+        pm_error("asciiarttopbm/asciiarttopgm invoked under unknown name");
     }
 
     numlines = 0;

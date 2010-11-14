@@ -10,19 +10,19 @@ INSTALL=install
 
 LIBS = -lnetpbm
 
-TARGETS = asciitopbm pgmtoascii
-MANPAGES = asciitopbm.1 asciitopgm.1 pgmtoascii.1
+TARGETS = asciiarttopbm pgmtoasciiart
+MANPAGES = asciiarttopbm.1 asciiarttopgm.1 pgmtoasciiart.1
 
 SHADESRC = shades_typewriter.c shades_sans.c scale_sans.c scale_typewriter.c
 SHADEOBJ = shades_typewriter.o shades_sans.o scale_sans.o scale_typewriter.o
 
 all: $(TARGETS)
 
-asciitopbm: asciitopbm.o shades.o $(SHADEOBJ) glyphshades.h
-	$(CC) $(CFLAGS) -o asciitopbm asciitopbm.o shades.o $(SHADEOBJ) $(LIBS)
+asciiarttopbm: asciiarttopbm.o shades.o $(SHADEOBJ) glyphshades.h
+	$(CC) $(CFLAGS) -o asciiarttopbm asciiarttopbm.o shades.o $(SHADEOBJ) $(LIBS)
 
-pgmtoascii: pgmtoascii.o shades.o $(SHADEOBJ) glyphshades.h
-	$(CC) $(CFLAGS) -o pgmtoascii pgmtoascii.o shades.o $(SHADEOBJ) $(LIBS)
+pgmtoasciiart: pgmtoasciiart.o shades.o $(SHADEOBJ) glyphshades.h
+	$(CC) $(CFLAGS) -o pgmtoasciiart pgmtoasciiart.o shades.o $(SHADEOBJ) $(LIBS)
 
 shades_typewriter.c: glyphshades
 	./glyphshades -m struct -f 'Courier New' typewriter > shades_typewriter.c
@@ -47,11 +47,11 @@ scale_sans.o: glyphshades.h
 glyphshades: glyphshades.o
 	$(CC) $(CFLAGS) -o glyphshades glyphshades.o -lcairo
 
-install: $(TARGETS) mkascii.sh
+install: $(TARGETS) mkasciiart.sh
 	for i in $(TARGETS); do $(INSTALL) $$i $(DESTDIR)/bin ; done
-	cd $(DESTDIR)/bin && rm -rf asciitopgm && ln -s asciitopbm asciitopgm
-	$(INSTALL) mkascii.sh $(DESTDIR)/bin/mkascii
+	cd $(DESTDIR)/bin && rm -rf asciiarttopgm && ln -s asciiarttopbm asciiarttopgm
+	$(INSTALL) mkasciiart.sh $(DESTDIR)/bin/mkasciiart
 	for i in $(MANPAGES); do $(INSTALL) -m 644 $$i $(DESTDIR)/man/man1 ; done
 
 clean:
-	-rm -f *.o $(TARGETS) $(SHADESRC)
+	-rm -f *.o $(TARGETS) $(SHADESRC) glyphshades
