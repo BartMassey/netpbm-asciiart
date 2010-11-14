@@ -13,17 +13,17 @@
 
 #include "glyphshades.h"
 
-char *usage = "usage: pgmtoascii [-reverse] [-f <font-tag>] [-scale <chars>] [file]";
+static char *usage = "usage: pgmtoascii [-reverse] [-f <font-tag>] [-scale <chars>] [file]";
 
-int maxscale;            /* length of scale (i.e. gray-levels available) */
-char *progname;          /* basename of invoked program */
-int mingrey = 1;         /* if it aint at least this, it's white */
+static int maxscale;      /* length of scale (i.e. gray-levels available) */
+static char *progname;    /* basename of invoked program */
+static int mingrey = 1;   /* if it aint at least this, it's white */
 
 /* command-line arguments */
-FILE *fp;
-char *scale;             /* for pointing to the gray-level being used */
-char *font_tag;
-int reverse;
+static FILE *fp;
+static char *scale;   /* for pointing to the gray-level being used */
+static char *font_tag;
+static int reverse;
 
 static void strreverse(char *s) {
     int n = strlen(s);

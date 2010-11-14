@@ -15,35 +15,24 @@
 
 #include "glyphshades.h"
 
-/*
- * For best efficiency on machines which support it,
- * use -DINLINE=inline.  If you can't do this, your
- * compiler had better do reasonable register allocation.
- * Otherwise, you should rewrite some of this as a series of
- * macros.
- */
-#ifndef INLINE
-#define INLINE  /*inline*/
-#endif
-
-int maxscale;           /* length of scale (i.e. gray-levels available) */
-int threshold;          /* cut-point */
-char **grey;            /* array of grey levels */
-char *gp;               /* array index */
-int maxlinelen;         /* width in chars */
-int numlines;           /* height in chars */
-int screen, contrast;   /* relative to maxscale */
-int writepgm = 0;       /* true if we are writing a greymap */
-int mingrey = 15;       /* if it aint white, its at least this */
+static int maxscale;           /* gray-levels available */
+static int threshold;          /* cut-point */
+static char **grey;            /* array of grey levels */
+static char *gp;               /* array index */
+static int maxlinelen;         /* width in chars */
+static int numlines;           /* height in chars */
+static int screen, contrast;   /* relative to maxscale */
+static int writepgm = 0;       /* true if we are writing a greymap */
+static int mingrey = 15;       /* if it aint white, its at least this */
 
 /* command-line arguments */
-char *progname;         /* basename of invoked program */
-FILE *fp;
-int pix_width, pix_height;
-float sscreen, scontrast;
-char *scale;
-char *font_tag;
-char usage[1025];
+static char *progname;   /* basename of invoked program */
+static FILE *fp;
+static int pix_width, pix_height;
+static float sscreen, scontrast;
+static char *scale;
+static char *font_tag;
+static char usage[1025];
 
 static void parse_command_line(int argc, char ** argv) {
     optEntry *option_def = malloc(100 * sizeof(optStruct));
@@ -95,7 +84,7 @@ static void parse_command_line(int argc, char ** argv) {
 
 
 /* bilinear (2-d Gouraud) shading */
-INLINE int g2d(int x, int y) {
+static int g2d(int x, int y) {
     int dx = x % pix_width;
     int dy = y % pix_height;
     int chx = x / pix_width;
@@ -117,7 +106,7 @@ INLINE int g2d(int x, int y) {
 #define RAND(N) ((N==0)?0:(random() % (N)))
 
 /* paint a character block one "real" pixel at a time. */
-void paint_grays(gray **gp) {
+static void paint_grays(gray **gp) {
     int i, j;
     int dx = pix_width * (maxlinelen - 1);
     int dy = pix_height * (numlines - 1);
@@ -137,7 +126,7 @@ void paint_grays(gray **gp) {
 
 
 /* customized halftoning for ascii images */
-int halftone(int g, int x, int y) {
+static int halftone(int g, int x, int y) {
     return g +                                       /* gray */
         (((x & 1) ^ (y & 1)) ? screen : -screen) +   /* screening */
         (int) (RAND( 2 * contrast ) - contrast)      /* dither */
@@ -145,7 +134,7 @@ int halftone(int g, int x, int y) {
 }
      
 /* paint a character block one "real" pixel at a time. */
-void paint_bits(bit **bp) {
+static void paint_bits(bit **bp) {
     int i, j;
     int dx = pix_width * (maxlinelen - 1);
     int dy = pix_height * (numlines - 1);
@@ -167,7 +156,7 @@ void paint_bits(bit **bp) {
  * find the character pixel (chixel) in the gray-scale and return its
  * level.
  */
-int get_level(char chixel) {
+static int get_level(char chixel) {
     register int lev;
     static int warned = 0;
     int scalelen = strlen(scale);
@@ -201,7 +190,7 @@ int get_level(char chixel) {
  * line, returns the number of chars (counting
  * the null) in *sp, or 0 on EOF.
  */
-int safe_gets(char **sp) {
+static int safe_gets(char **sp) {
     int targ, res;
     char *s, *si;
 
@@ -262,7 +251,7 @@ int main(int argc, char **argv) {
         writepgm = 0;
     else
         pm_error("asciitopbm invoked under unknown name");
-    sprintf(usage, "usage: %s [-cwidth <pixels>] [-cheight <pixels>] [-c contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [<filename>]\n",
+    sprintf(usage, "usage: %s [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [<filename>]\n",
             progname);
     parse_command_line(argc, argv);
 
