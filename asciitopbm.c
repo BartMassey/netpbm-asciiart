@@ -25,22 +25,62 @@
 #endif
 
 /* the default 64 gray-level */
-char *scalechars = " .:,`~-^!;|/[*(}?+7<i=IrlvYC30Otu9ZVGDa&8pwdhRFUgHXqbAkQNKEBmWM#";
-char *scale;            /* for pointing to the gray-level being used */
+static char *scalechars =
+    " .:,`~-^!;|/[*(}?+7<i=IrlvYC30Otu9ZVGDa&8pwdhRFUgHXqbAkQNKEBmWM#";
 int maxscale;           /* length of scale (i.e. gray-levels available) */
 int threshold;          /* cut-point */
 char **grey;            /* array of grey levels */
 char *gp;               /* array index */
-FILE *fp;               /* input file */
 int maxlinelen;         /* width in chars */
 int numlines;           /* height in chars */
-int pix_width = 5;      /* char width in pixels */
-int pix_height = 12;    /* char height in pixels */
-double sscreen = 0.01;  /* scaled screen value */
-double scontrast = 0.70;  /* scaled contrast value */
 int screen, contrast;   /* relative to maxscale */
-char *progname;         /* basename of invoked program */
 int writepgm = 0;       /* true if we are writing a greymap */
+
+/* command-line arguments */
+char *progname;         /* basename of invoked program */
+FILE *fp;
+int pix_width, pix_height;
+float sscreen, scontrast;
+char *scale;
+char usage[1025];
+
+static void parse_command_line(int argc, char ** argv) {
+    optEntry *option_def = malloc(100 * sizeof(optStruct));
+    optStruct3 opt;
+    unsigned int option_def_index;
+
+    option_def_index = 0;
+    OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
+    OPTENT3(0, "cheight", OPT_INT, &pix_height, NULL, 0);
+    OPTENT3(0, "mesh", OPT_FLOAT, &sscreen, NULL, 0);
+    OPTENT3(0, "contrast", OPT_FLOAT, &scontrast, NULL, 0);
+    OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
+
+    pix_width = 5;
+    pix_height = 12;
+    sscreen = 0.01;
+    scontrast = 0.70;
+    scale = scalechars;
+
+    opt.opt_table = option_def;
+    opt.short_allowed = FALSE;  /* We have no short (old-fashioned) options */
+    opt.allowNegNum = TRUE;  /* We may have parms that are negative numbers */
+
+    pm_optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
+
+    if (pix_width < 0)
+        pm_error("-cwidth may not be negative.");
+    if (pix_height < 0)
+        pm_error("-cheight may not be negative.");
+    if (argc > 2)
+        pm_error(usage);
+    if (argc == 2) {
+        fp = fopen(argv[1], "r");
+        if (!fp)
+            pm_error("could not open input file");
+    }
+}
+
 
 /* bilinear (2-d Gouraud) shading */
 INLINE int g2d(int x, int y) {
@@ -126,9 +166,8 @@ int get_level(char chixel) {
     if (lev > (maxscale-1)) {
         lev = maxscale -1;
         if (!warned) {
-            fprintf(stderr,
-                    "%s: warning: unexpected char '%c' (%d) in input (future warnings suppressed)\n",
-                    progname, chixel, chixel);
+            pm_message("warning: unexpected char '%c' (%d) in input (future warnings suppressed)",
+                       chixel, chixel);
             warned = 1;
         }
     }
@@ -160,7 +199,7 @@ int safe_gets(char **sp) {
         res = getc(fp);
         if (res == EOF) {
             if (si > s)
-                fprintf(stderr, "%s: unexpected EOF\n", progname);
+                pm_error("unexpected EOF");
             *sp = 0;
             return 0;
         }
@@ -195,36 +234,10 @@ int main(int argc, char **argv) {
     else if (!strcmp(progname, "asciitopbm"))
         writepgm = 0;
     else
-        goto usage;
-    while (argc > 1 && argv[1][0] == '-') {
-        if (!strcmp(argv[1], "-cellwidth")) {
-            pix_width = atoi( argv[2] );
-        } else if (!strcmp(argv[1], "-cellheight")) {
-            pix_height = atoi( argv[2] );
-        } else if (!strcmp(argv[1], "-meshsize")) {
-            sscreen = atof( argv[2] );
-        } else if (!strcmp(argv[1], "-contrast")) {
-            scontrast = atof( argv[2] );
-        } else if (!strcmp(argv[1], "-scale")) {
-            scalechars = argv[2];
-        } else {
-            goto usage;
-        }
-        argv += 2;
-        argc -= 2;
-    }
-    if (argc == 2) {
-        fp = fopen( argv[1], "r" );
-        if (!fp) {
-            perror(progname);
-            exit(1);
-        }
-        argc--;
-    }
-#if 0
-    if (argc != 1)
-        goto usage;
-#endif
+        pm_error("asciitopbm invoked under unknown name");
+    sprintf(usage, "%s: usage: %s [-cwidth <pixels>] [-cheight <pixels>] [-c contrast <0..1>] [-mesh <0..1>] [-scale <string>] [<filename>]\n",
+            progname, progname);
+    parse_command_line(argc, argv);
 
     numlines = 0;
     scale = scalechars;
@@ -251,6 +264,9 @@ int main(int argc, char **argv) {
         }
     }
     maxlinelen--;  /* throw away the null */
+
+    if (numlines <= 0)
+        pm_error("cannot process empty file");
 
     for( y = 0; y < numlines; y++ ) {
         if( (l = strlen( grey[y] )) < maxlinelen ) {
@@ -283,9 +299,5 @@ int main(int argc, char **argv) {
                      maxlinelen * pix_width,
                      numlines * pix_height, 0);
     }
-    exit(0);
- usage:
-    fprintf(stderr, "%s: usage: [asciitopbm|asciitopgm] [-cellwidth <pixels>] [-cellheight <pixels>] [-c contrast <0..1>] [-mesh <0..1>] [-scale <string>] [<filename>]\n", progname);
-    exit(1);
-    /*NOTREACHED*/
+    return 0;
 }
