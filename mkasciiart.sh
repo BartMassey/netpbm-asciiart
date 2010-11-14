@@ -7,8 +7,8 @@
 PGM="`basename $0`"
 USAGE="$PGM: usage: $PGM [-reverse] [-font <tag>] [-width <width>] [-yscale <yscale>] [-preview <width>]"
 
-YSCALE=0.4
-INVYSCALE=2.5
+YSCALE=2.5
+INVYSCALE=0.4
 WIDTH=132
 PREVIEW=false
 REVERSE=""
