@@ -22,6 +22,11 @@ do
 	shift
 	;;
     -font)
+        if [ $# -le 1 ]
+	then
+	    echo "$USAGE" >&2
+	    exit 1
+	fi
 	FONT_TAG="-font $2"
 	shift 2
 	;;
@@ -45,6 +50,11 @@ do
         shift 2
 	;;
     -preview)
+        if [ $# -le 1 ]
+	then
+	    echo "$USAGE" >&2
+	    exit 1
+	fi
 	PREVIEW=true
 	PWIDTH=$2
 	shift 2
