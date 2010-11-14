@@ -6,4 +6,5 @@ old/
 pgmtoascii
 glyphshades
 *.o
-shades.c
+shades_sans.c
+shades_typewriter.c
