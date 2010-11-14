@@ -8,12 +8,13 @@ LIBS = -lnetpbm
 
 TARGETS = asciitopbm asciitopgm pgmtoascii
 
-SHADES = shades_typewriter.c shades_sans.c
+SHADESRC = shades_typewriter.c shades_sans.c scale_sans.c scale_typewriter.c
+SHADEOBJ = shades_typewriter.o shades_sans.o scale_sans.o scale_typewriter.o
 
-all: $(TARGETS) $(SHADES)
+all: $(TARGETS) $(SHADESRC)
 
-asciitopbm: asciitopbm.o
-	$(CC) $(CFLAGS) -o asciitopbm asciitopbm.o $(LIBS)
+asciitopbm: asciitopbm.o $(SHADEOBJ) glyphshades.h
+	$(CC) $(CFLAGS) -o asciitopbm asciitopbm.o $(SHADEOBJ) $(LIBS)
 
 asciitopgm: asciitopbm
 	ln -s asciitopbm asciitopgm
@@ -31,8 +32,18 @@ shades_sans.c: glyphshades
 
 shades_sans.o: glyphshades.h
 
+scale_typewriter.c: glyphshades
+	./glyphshades -m scale -f 'Courier New' typewiter > scale_typewriter.c
+
+scale_typewriter.o: glyphshades.h
+
+scale_sans.c: glyphshades
+	./glyphshades -m struct -f 'Bitstream Vera Sans Mono' sans > scale_sans.c
+
+scale_sans.o: glyphshades.h
+
 glyphshades: glyphshades.o
 	$(CC) $(CFLAGS) -o glyphshades glyphshades.o -lcairo
 
 clean:
-	-rm -f *.o $(TARGETS) $(SHADES)
+	-rm -f *.o $(TARGETS) $(SHADESRC)

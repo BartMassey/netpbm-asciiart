@@ -6,12 +6,14 @@
  * distribution of this software for license terms.
  */
 
+#include <assert.h>
+#include <pbm.h>
+#include <pgm.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include "pgm.h"
-#include "pbm.h"
+
+#include "glyphshades.h"
 
 /*
  * For best efficiency on machines which support it,

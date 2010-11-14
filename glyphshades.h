@@ -5,5 +5,8 @@ struct glyphshade {
     float w;
 };
 
-extern struct glyphshades glyphshades_sans[];
-extern struct glyphshades glyphshades_typewriter[];
+extern struct glyphshade glyphshades_sans[];
+extern struct glyphshade glyphshades_typewriter[];
+
+extern char *scalechars_sans;
+extern char *scalechars_typewriter;

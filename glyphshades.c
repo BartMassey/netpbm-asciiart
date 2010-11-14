@@ -157,7 +157,9 @@ int main(int argc, char **argv) {
     qsort(glyphshades, 95, sizeof(struct glyphshades), cgs);
     assert(glyphshades[0].ch == ' ');
     if (mode == 0 || !strcmp(mode, "scale")) {
-        printf("/* Scale for %s from glyphshades. */\n", font_name);
+        printf("/* XXX Output produced automatically by glyphshades. */\n");
+        printf("#include \"glyphshades.h\"\n");
+        printf("/* Scale for %s. */\n", font_name);
         printf("static char *scalechars_%s = \"", font_tag);
         for (ch = 1; ch < 95; ch++) {
             char ch_str[3];
