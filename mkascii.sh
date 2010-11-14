@@ -10,10 +10,15 @@ USAGE="$PGM: usage: $PGM [-w <width>] [-y <yscale>] [-p <pwidth>]"
 YSCALE=0.4
 WIDTH=132
 PREVIEW=false
+REVERSE=""
 
 while [ $# -gt 0 ]
 do
     case "$1" in
+    -r)
+	REVERSE="-r"
+	shift
+	;;
     -w)
         if [ $# -le 1 ]
 	then
@@ -63,5 +68,5 @@ then
     pnmscale -width $PWIDTH |
     pnmscale -xscale 1.0 -yscale `awk "END { print 1.0 / $YSCALE; }" </dev/null`
 else
-    pgmtoascii
+    pgmtoascii $REVERSE
 fi
