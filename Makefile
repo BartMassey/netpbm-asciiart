@@ -11,6 +11,7 @@ INSTALL=install
 LIBS = -lnetpbm
 
 TARGETS = asciitopbm pgmtoascii
+MANPAGES = asciitopbm.1 asciitopgm.1 pgmtoascii.1
 
 SHADESRC = shades_typewriter.c shades_sans.c scale_sans.c scale_typewriter.c
 SHADEOBJ = shades_typewriter.o shades_sans.o scale_sans.o scale_typewriter.o
@@ -50,6 +51,7 @@ install: $(TARGETS) mkascii.sh
 	for i in $(TARGETS); do $(INSTALL) $$i $(DESTDIR)/bin ; done
 	cd $(DESTDIR)/bin && rm -rf asciitopgm && ln -s asciitopbm asciitopgm
 	$(INSTALL) mkascii.sh $(DESTDIR)/bin/mkascii
+	for i in $(MANPAGES); do $(INSTALL) -m 644 $$i $(DESTDIR)/man/man1 ; done
 
 clean:
 	-rm -f *.o $(TARGETS) $(SHADESRC)
