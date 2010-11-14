@@ -24,15 +24,17 @@ static char *scale;   /* for pointing to the gray-level being used */
 static char *font_tag;
 static unsigned int reverse;
 
-static void strreverse(char *s) {
+static char *strreverse(char *s) {
     int n = strlen(s);
+    char *t = malloc(n + 1);
     int i;
-    
-    for (i = 0; i < strlen(s) / 2; i++) {
-        char tmp = s[i];
-        s[i] = s[n - i - 1];
-        s[n - i - 1] = tmp;
-    }
+
+    if (!t)
+        pm_error("out of memory");
+    for (i = 0; i < n; i++)
+        t[i] = s[n - i - 1];
+    t[n] = '\0';
+    return t;
 }
 
 static void parse_command_line(int argc, char ** argv) {
@@ -68,7 +70,7 @@ static void parse_command_line(int argc, char ** argv) {
     if (!shades[i].font_tag)
         pm_error("unknown font tag %s", font_tag);
     if (reverse)
-        strreverse(scale);
+        scale = strreverse(scale);
     if (argc == 2) {
         fp = fopen(argv[1], "r");
         if (!fp)
