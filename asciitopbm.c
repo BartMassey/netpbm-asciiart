@@ -26,7 +26,7 @@
 
 /* the default 95 gray-level covering all printable ascii */
 /* Scale for Bitstream Vera Sans Mono from glyphshades. */
-static char *scalechars = " `.-',:_~\";^!/\\*r()+<>|?=clLv[]ji71TYtfJx}{snuzCIFyo%Vhkw4SeP3ZX2Ua5G$KHOAEqdbpDmQ960R&g8N#BMW@";
+static char *scalechars = "`.-',:_~\";^!/\\*r()+<>|?=clLv[]ji71TYtfJx}{snuzCIFyo%Vhkw4SeP3ZX2Ua5G$KHOAEqdbpDmQ960R&g8N#BMW@";
 int maxscale;           /* length of scale (i.e. gray-levels available) */
 int threshold;          /* cut-point */
 char **grey;            /* array of grey levels */
@@ -35,6 +35,7 @@ int maxlinelen;         /* width in chars */
 int numlines;           /* height in chars */
 int screen, contrast;   /* relative to maxscale */
 int writepgm = 0;       /* true if we are writing a greymap */
+int mingrey = 15;       /* if it aint white, its at least this */
 
 /* command-line arguments */
 char *progname;         /* basename of invoked program */
@@ -158,21 +159,28 @@ void paint_bits(bit **bp) {
 int get_level(char chixel) {
     register int lev;
     static int warned = 0;
+    int scalelen = strlen(scale);
 
-    for (lev=0; lev < maxscale && scale[lev] != chixel; lev++)
+    if (chixel == ' ')
+        return 0;
+    for (lev = 0; lev < scalelen && scale[lev] != chixel; lev++)
         /* do nothing */;
 
     /* if not found, then max it out. */
-    if (lev > (maxscale-1)) {
-        lev = maxscale -1;
+    if (lev >= scalelen) {
         if (!warned) {
-            pm_message("warning: unexpected char '%c' (%d) in input (future warnings suppressed)",
-                       chixel, chixel);
+            if (chixel >= ' ' && chixel < 127)
+                pm_message("warning: unexpected char '%c' (%d) in input set to black (future warnings suppressed)",
+                           chixel, chixel);
+            else
+                pm_message("warning: unexpected char (%d) in input set to black (future warnings suppressed)",
+                           chixel);
             warned = 1;
         }
+        return maxscale - 1;
     }
 
-    return(lev);
+    return lev + mingrey;
 }
 
 
@@ -199,12 +207,20 @@ int safe_gets(char **sp) {
         res = getc(fp);
         if (res == EOF) {
             if (si > s)
-                pm_error("unexpected EOF");
+                pm_message("unexpected EOF");
             *sp = 0;
             return 0;
         }
         if (res == '\n')
             break;
+        if (res == '\r') {
+            int ch = getc(fp);
+            if (ch == EOF)
+                break;
+            if (ch != '\n')
+                ungetc(ch, fp);
+            break;
+        }
         *si++ = res;
     }
     *si = '\0';
@@ -235,13 +251,13 @@ int main(int argc, char **argv) {
         writepgm = 0;
     else
         pm_error("asciitopbm invoked under unknown name");
-    sprintf(usage, "%s: usage: %s [-cwidth <pixels>] [-cheight <pixels>] [-c contrast <0..1>] [-mesh <0..1>] [-scale <string>] [<filename>]\n",
-            progname, progname);
+    sprintf(usage, "usage: %s [-cwidth <pixels>] [-cheight <pixels>] [-c contrast <0..1>] [-mesh <0..1>] [-scale <string>] [<filename>]\n",
+            progname);
     parse_command_line(argc, argv);
 
     numlines = 0;
     scale = scalechars;
-    maxscale = strlen(scale);
+    maxscale = strlen(scale) + mingrey;
     contrast = (1 - scontrast) * maxscale;
     screen = sscreen * maxscale;
     grey = (char **) malloc(maxlines * sizeof(char *));
@@ -268,18 +284,18 @@ int main(int argc, char **argv) {
     if (numlines <= 0)
         pm_error("cannot process empty file");
 
-    for( y = 0; y < numlines; y++ ) {
-        if( (l = strlen( grey[y] )) < maxlinelen ) {
+    for (y = 0; y < numlines; y++) {
+        if ((l = strlen(grey[y])) < maxlinelen) {
             grey[y] = realloc( grey[y], maxlinelen + 1 );
             for( x = l; x < maxlinelen; x++ )
                 grey[y][x] = ' ';
             grey[y][x] = '\0';
         }
-        for( x = 0; x < maxlinelen; x++ )
+        for (x = 0; x < maxlinelen; x++)
             grey[y][x] = get_level(grey[y][x]);
     }
-    for( y = 0; y < numlines; y++ )
-        for( x = 0; x < maxlinelen; x++ )
+    for (y = 0; y < numlines; y++)
+        for (x = 0; x < maxlinelen; x++)
             threshold += grey[y][x];
     threshold /= numlines * maxlinelen;
 
@@ -287,7 +303,7 @@ int main(int argc, char **argv) {
         gray **gp = pgm_allocarray(maxlinelen * pix_width,
                                    numlines * pix_height);
         paint_grays(gp);
-        pgm_writepgm(stdout, (gray **) gp,
+        pgm_writepgm(stdout, (gray **)gp,
                      maxlinelen * pix_width,
                      numlines * pix_height,
                      (gray) maxscale, 0);
@@ -295,7 +311,7 @@ int main(int argc, char **argv) {
         bit **bp = pbm_allocarray(maxlinelen * pix_width,
                                   numlines * pix_height);
         paint_bits(bp);
-        pbm_writepbm(stdout, (bit **) bp,
+        pbm_writepbm(stdout, (bit **)bp,
                      maxlinelen * pix_width,
                      numlines * pix_height, 0);
     }
