@@ -11,64 +11,58 @@
 #include <assert.h>
 #include "pgm.h"
 
+char *usage = "usage: pgmtoascii [-r] [-s scale] [file]";
+
 /* the default 32 gray-level */
 /* black-on-white tonal scale chosen by glyphshades */
 char *scale_bow = " `-',:~;^/*(+?LifzF%ke2$bm08N#M@";
 /* white-on-black tonal scale is reverse of black-on-white */
 char *scale_wob = "@M#N80mb$2ek%FzfiL?+(*/^;~:,'-` ";
-char *scale;             /* for pointing to the gray-level being used */
 int maxscale;            /* length of scale (i.e. gray-levels available) */
 char *progname;          /* basename of invoked program */
+
+/* command-line arguments */
+FILE *fp;
+char *scale;             /* for pointing to the gray-level being used */
+
+static void parse_command_line(int argc, char ** argv) {
+    int reverse = 0;
+    optEntry *option_def = malloc(100 * sizeof(optStruct));
+    optStruct3 opt;
+    unsigned int option_def_index;
+
+    option_def_index = 0;
+    OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
+    OPTENT3(0, "reverse", OPT_FLAG, NULL, &reverse, 0);
+
+    fp = stdin;
+    scale = scale_bow;
+
+    opt.opt_table = option_def;
+    opt.short_allowed = FALSE;  /* We have no short (old-fashioned) options */
+    opt.allowNegNum = TRUE;  /* We may have parms that are negative numbers */
+
+    pm_optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
+
+    if (reverse)
+        scale = scale_wob;
+    if (argc > 2)
+        pm_error(usage);
+    if (argc == 2) {
+        fp = fopen(argv[1], "r");
+        if (!fp)
+            pm_error("could not open input file");
+    }
+}
 
 int main(int argc, char **argv) {
     int cols, rows;
     unsigned int nscale;
-    FILE *fp;
     gray **gp;
     int i, j;
 
-    scale = scale_bow;
     pgm_init(&argc, argv);
-    progname = rindex(argv[0], '/');
-    if (!progname)
-        progname = argv[0];
-    else
-        progname++;
-    fp = stdin;
-    if (argc > 0) {
-        argv++;
-        argc--;
-    }
-    while (argc > 0 && argv[0][0] == '-') {
-        if (argv[0][1] == '\0' || argv[0][2] != '\0')
-            goto usage;
-        switch (argv[0][1]) {
-        case 'h':
-            goto usage;
-        case 'r':
-            scale = scale_wob;
-            argv++;
-            argc--;
-            break;
-        case 's':
-            scale = argv[2];
-            argv += 2;
-            argc -= 2;
-            break;
-        default:
-            goto usage;
-        }
-    }
-    if (argc == 1) {
-        fp = fopen(argv[1], "r");
-        if (!fp) {
-            perror("fopen");
-            exit(1);
-        }
-        argc--;
-    }
-    if (argc != 0)
-        goto usage;
+    parse_command_line(argc, argv);
 
     maxscale = strlen(scale);
     gp = pgm_readpgm(fp, &cols, &rows, &nscale);
@@ -80,10 +74,5 @@ int main(int argc, char **argv) {
         }
         putchar('\n');
     }
-    exit(0);
- usage:
-    fprintf(stderr, "%s: usage: pgmtoascii [-r] [-s scale] [file]\n",
-            progname);
-    exit(1);
-    /*NOTREACHED*/
+    return 0;
 }
