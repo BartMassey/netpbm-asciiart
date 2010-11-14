@@ -80,7 +80,7 @@ static void parse_command_line(int argc, char ** argv) {
         pm_error("-cheight may not be negative.");
     for (i = 0; shades[i].font_tag; i++) {
         if (!strcmp(font_tag, shades[i].font_tag)) {
-            scale = shades[i].scale;
+            scale = *shades[i].scale;
             break;
         }
     }

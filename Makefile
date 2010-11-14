@@ -13,8 +13,8 @@ SHADEOBJ = shades_typewriter.o shades_sans.o scale_sans.o scale_typewriter.o
 
 all: $(TARGETS) $(SHADESRC)
 
-asciitopbm: asciitopbm.o $(SHADEOBJ) shades.o glyphshades.h
-	$(CC) $(CFLAGS) -o asciitopbm asciitopbm.o $(SHADEOBJ) $(LIBS)
+asciitopbm: asciitopbm.o shades.o $(SHADEOBJ) glyphshades.h
+	$(CC) $(CFLAGS) -o asciitopbm asciitopbm.o shades.o $(SHADEOBJ) $(LIBS)
 
 asciitopgm: asciitopbm
 	ln -s asciitopbm asciitopgm
@@ -23,7 +23,7 @@ pgmtoascii: pgmtoascii.o
 	$(CC) $(CFLAGS) -o pgmtoascii pgmtoascii.o $(LIBS)
 
 shades_typewriter.c: glyphshades
-	./glyphshades -m struct -f 'Courier New' typewiter > shades_typewriter.c
+	./glyphshades -m struct -f 'Courier New' typewriter > shades_typewriter.c
 
 shades_typewriter.o: glyphshades.h
 
@@ -33,7 +33,7 @@ shades_sans.c: glyphshades
 shades_sans.o: glyphshades.h
 
 scale_typewriter.c: glyphshades
-	./glyphshades -m scale -f 'Courier New' typewiter > scale_typewriter.c
+	./glyphshades -m scale -f 'Courier New' typewriter > scale_typewriter.c
 
 scale_typewriter.o: glyphshades.h
 
