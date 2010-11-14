@@ -24,9 +24,9 @@
 #define INLINE  /*inline*/
 #endif
 
-/* the default 64 gray-level */
-static char *scalechars =
-    " .:,`~-^!;|/[*(}?+7<i=IrlvYC30Otu9ZVGDa&8pwdhRFUgHXqbAkQNKEBmWM#";
+/* the default 95 gray-level covering all printable ascii */
+/* Scale for Bitstream Vera Sans Mono from glyphshades. */
+static char *scalechars = " `.-',:_~\";^!/\\*r()+<>|?=clLv[]ji71TYtfJx}{snuzCIFyo%Vhkw4SeP3ZX2Ua5G$KHOAEqdbpDmQ960R&g8N#BMW@";
 int maxscale;           /* length of scale (i.e. gray-levels available) */
 int threshold;          /* cut-point */
 char **grey;            /* array of grey levels */
