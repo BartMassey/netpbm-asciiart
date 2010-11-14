@@ -4,20 +4,21 @@
 # Please see the file COPYING in the source
 # distribution of this software for license terms.
 
+DESTDIR=/usr/local
+
+INSTALL=install
+
 LIBS = -lnetpbm
 
-TARGETS = asciitopbm asciitopgm pgmtoascii
+TARGETS = asciitopbm pgmtoascii
 
 SHADESRC = shades_typewriter.c shades_sans.c scale_sans.c scale_typewriter.c
 SHADEOBJ = shades_typewriter.o shades_sans.o scale_sans.o scale_typewriter.o
 
-all: $(TARGETS) $(SHADESRC)
+all: $(TARGETS)
 
 asciitopbm: asciitopbm.o shades.o $(SHADEOBJ) glyphshades.h
 	$(CC) $(CFLAGS) -o asciitopbm asciitopbm.o shades.o $(SHADEOBJ) $(LIBS)
-
-asciitopgm: asciitopbm
-	ln -s asciitopbm asciitopgm
 
 pgmtoascii: pgmtoascii.o
 	$(CC) $(CFLAGS) -o pgmtoascii pgmtoascii.o $(LIBS)
@@ -44,6 +45,10 @@ scale_sans.o: glyphshades.h
 
 glyphshades: glyphshades.o
 	$(CC) $(CFLAGS) -o glyphshades glyphshades.o -lcairo
+
+install: $(TARGETS)
+	for i in $(TARGETS); do $(INSTALL) $$i $(DESTDIR)/bin ; done
+	cd $(DESTDIR)/bin && rm -rf asciitopgm && ln -s asciitopbm asciitopgm
 
 clean:
 	-rm -f *.o $(TARGETS) $(SHADESRC)
