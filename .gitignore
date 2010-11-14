@@ -1,9 +1,9 @@
-asciitopbm
-asciitopgm
+asciiarttopbm
+asciiarttopgm
 g2.txt
 jpgtoagm
 old/
-pgmtoascii
+pgmtoasciiart
 glyphshades
 *.o
 shades_sans.c
