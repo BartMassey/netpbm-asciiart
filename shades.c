@@ -8,8 +8,8 @@
 
 #include "glyphshades.h"
 
-struct shade shades[] {
-    {"sans", glyphscale_sans, glyphshades_sans},
-    {"typewriter", glyphscale_typewriter, glyphshades_typewriter},
+struct shade shades[] = {
+    {"sans", scalechars_sans, glyphshades_sans},
+    {"typewriter", scalechars_typewriter, glyphshades_typewriter},
     {0, 0, 0}
 }

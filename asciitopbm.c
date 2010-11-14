@@ -267,7 +267,6 @@ int main(int argc, char **argv) {
     parse_command_line(argc, argv);
 
     numlines = 0;
-    scale = scalechars;
     maxscale = strlen(scale) + mingrey;
     contrast = (1 - scontrast) * maxscale;
     screen = sscreen * maxscale;
