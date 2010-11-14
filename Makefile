@@ -8,7 +8,9 @@ LIBS = -lnetpbm
 
 TARGETS = asciitopbm asciitopgm pgmtoascii
 
-all: $(TARGETS)
+SHADES = shades_typewriter.c shades_sans.c
+
+all: $(TARGETS) $(SHADES)
 
 asciitopbm: asciitopbm.o
 	$(CC) $(CFLAGS) -o asciitopbm asciitopbm.o $(LIBS)
@@ -19,11 +21,18 @@ asciitopgm: asciitopbm
 pgmtoascii: pgmtoascii.o
 	$(CC) $(CFLAGS) -o pgmtoascii pgmtoascii.o $(LIBS)
 
-shades.c: glyphshades
-	./glypshades > shades.c
+shades_typewriter.c: glyphshades
+	./glyphshades -m struct -f 'Courier New' typewiter > shades_typewriter.c
+
+shades_typewriter.o: glyphshades.h
+
+shades_sans.c: glyphshades
+	./glyphshades -m struct -f 'Bitstream Vera Sans Mono' sans > shades_sans.c
+
+shades_sans.o: glyphshades.h
 
 glyphshades: glyphshades.o
 	$(CC) $(CFLAGS) -o glyphshades glyphshades.o -lcairo
 
 clean:
-	-rm -f *.o $(TARGETS)
+	-rm -f *.o $(TARGETS) $(SHADES)

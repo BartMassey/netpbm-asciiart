@@ -66,7 +66,7 @@ int glyphshade(cairo_t *cr, char ch, double inkwidth, double inkheight) {
 }
 
 void usage(void) {
-    fprintf(stderr, "glyphshades: usage: glyphshades [-m mode] [-f font] [-s size]\n");
+    fprintf(stderr, "glyphshades: usage: glyphshades [-m \"scale\" | -m \"struct\"] [-f <font-name> <font-tag>] [-s <font-size>]\n");
     exit(1);
 }
 
@@ -89,6 +89,7 @@ int cgs(const void *g1, const void *g2) {
 int main(int argc, char **argv) {
     char *mode = 0;
     char *font_name = "Bitstream Vera Sans Mono";
+    char *font_tag = "sans";
     int font_size = 48;
     cairo_surface_t *su =
         cairo_image_surface_create (CAIRO_FORMAT_A1, 100, 100);
@@ -103,10 +104,11 @@ int main(int argc, char **argv) {
         argv++;
     }
     while (argc >= 2) {
-        if (!strcmp(argv[0], "-f")) {
+        if (argc >= 3 && !strcmp(argv[0], "-f")) {
             font_name = argv[1];
-            argc -= 2;
-            argv += 2;
+            font_tag = argv[2];
+            argc -= 3;
+            argv += 3;
             continue;
         }
         if (!strcmp(argv[0], "-s")) {
@@ -156,7 +158,7 @@ int main(int argc, char **argv) {
     assert(glyphshades[0].ch == ' ');
     if (mode == 0 || !strcmp(mode, "scale")) {
         printf("/* Scale for %s from glyphshades. */\n", font_name);
-        printf("static char *scalechars = \"");
+        printf("static char *scalechars_%s = \"", font_tag);
         for (ch = 1; ch < 95; ch++) {
             char ch_str[3];
             ch_str[0] = glyphshades[ch].ch;
@@ -176,14 +178,12 @@ int main(int argc, char **argv) {
             printf("%s", ch_str);
         }
         printf("\";\n");
-    } else if (!strcmp(mode, "structs")) {
+    } else if (!strcmp(mode, "struct")) {
+        printf("/* XXX Output produced automatically by glyphshades. */\n");
+        printf("#include \"glyphshades.h\"\n");
         printf("/* Fractional glyph weights for %s.\n", font_name);
         printf("   Fractions assume default leading. */\n");
-        printf("/* Output produced automatically by glyphshades. */\n");
-        printf("struct glyphshades {\n");
-        printf("    char ch;\n");
-        printf("    float w;\n");
-        printf("} glyphshades[] = {\n");
+        printf("struct glyphshade glyphshades_%s[95] = {\n", font_tag);
         for (ch = 0; ch < 95; ch++) {
             char ch_str[3];
             float ch_gw;
