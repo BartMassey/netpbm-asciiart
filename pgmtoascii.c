@@ -23,6 +23,7 @@ int mingrey = 1;         /* if it aint at least this, it's white */
 FILE *fp;
 char *scale;             /* for pointing to the gray-level being used */
 char *font_tag;
+int reverse;
 
 static void strreverse(char *s) {
     int n = strlen(s);
@@ -36,7 +37,6 @@ static void strreverse(char *s) {
 }
 
 static void parse_command_line(int argc, char ** argv) {
-    int reverse = 0;
     optEntry *option_def = malloc(100 * sizeof(optStruct));
     optStruct3 opt;
     unsigned int option_def_index;
@@ -47,6 +47,7 @@ static void parse_command_line(int argc, char ** argv) {
     OPTENT3(0, "reverse", OPT_FLAG, NULL, &reverse, 0);
     OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
 
+    reverse = 0;
     fp = stdin;
     scale = scalechars_sans;
     font_tag = "sans";
@@ -91,10 +92,17 @@ int main(int argc, char **argv) {
         for (j = 0; j < cols; j++) {
             int k = (maxscale - 1) * (nscale - gp[i][j]) / nscale;
             assert(k >= 0 && k < maxscale);
-            if (k < mingrey)
-                putchar(' ');
-            else
-                putchar(scale[k - mingrey]);
+            if (!reverse) {
+                if (k < mingrey)
+                    putchar(' ');
+                else
+                    putchar(scale[k - mingrey]);
+            } else {
+                if (k >= maxscale - mingrey)
+                    putchar(' ');
+                else
+                    putchar(scale[k]);
+            }
         }
         putchar('\n');
     }
