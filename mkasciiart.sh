@@ -85,6 +85,10 @@ pnmnorm -quiet -wpercent 3 -bpercent 3 >$TMP
 pnmquant -nofs -meanpixel 99 $TMP 2>/dev/null |
 if $PREVIEW
 then
+    if [ "$REVERSE" != "" ] || [ "$FONT_TAG" != "" ]
+    then
+	echo "$PGM: warning: -preview ignores -reverse and -font-tag" >&2
+    fi
     pnmscale -width $PWIDTH |
     pnmscale -quiet -xscale 1.0 -yscale $YSCALE
 else
