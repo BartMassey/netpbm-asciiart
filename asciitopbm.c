@@ -24,6 +24,7 @@ static int numlines;           /* height in chars */
 static int screen, contrast;   /* relative to maxscale */
 static int writepgm = 0;       /* true if we are writing a greymap */
 static int mingrey = 15;       /* if it aint white, its at least this */
+static char *usage;
 
 /* command-line arguments */
 static char *progname;   /* basename of invoked program */
@@ -32,9 +33,8 @@ static int pix_width, pix_height;
 static float sscreen, scontrast;
 static char *scale;
 static char *font_tag;
-static char usage[1025];
 
-static void parse_command_line(int argc, char ** argv) {
+static void parse_pbm_command_line(int argc, char ** argv) {
     optEntry *option_def = malloc(100 * sizeof(optStruct));
     optStruct3 opt;
     unsigned int option_def_index;
@@ -45,6 +45,53 @@ static void parse_command_line(int argc, char ** argv) {
     OPTENT3(0, "cheight", OPT_INT, &pix_height, NULL, 0);
     OPTENT3(0, "mesh", OPT_FLOAT, &sscreen, NULL, 0);
     OPTENT3(0, "contrast", OPT_FLOAT, &scontrast, NULL, 0);
+    OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
+    OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
+
+    pix_width = 5;
+    pix_height = 12;
+    sscreen = 0.01;
+    scontrast = 0.70;
+    scale = scalechars_sans;
+    font_tag = "sans";
+
+    opt.opt_table = option_def;
+    opt.short_allowed = FALSE;  /* We have no short (old-fashioned) options */
+    opt.allowNegNum = TRUE;  /* We may have parms that are negative numbers */
+
+    pm_optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
+
+    if (argc > 2)
+        pm_error(usage);
+    if (pix_width < 0)
+        pm_error("-cwidth may not be negative.");
+    if (pix_height < 0)
+        pm_error("-cheight may not be negative.");
+    for (i = 0; shades[i].font_tag; i++) {
+        if (!strcmp(font_tag, shades[i].font_tag)) {
+            scale = *shades[i].scale;
+            break;
+        }
+    }
+    if (!shades[i].font_tag)
+        pm_error("unknown font tag %s", font_tag);
+    if (argc == 2) {
+        fp = fopen(argv[1], "r");
+        if (!fp)
+            pm_error("could not open input file");
+    }
+}
+
+
+static void parse_pgm_command_line(int argc, char ** argv) {
+    optEntry *option_def = malloc(100 * sizeof(optStruct));
+    optStruct3 opt;
+    unsigned int option_def_index;
+    int i;
+
+    option_def_index = 0;
+    OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
+    OPTENT3(0, "cheight", OPT_INT, &pix_height, NULL, 0);
     OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
     OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
 
@@ -245,15 +292,17 @@ int main(int argc, char **argv) {
     else
         progname++;
     fp = stdin;
-    if (!strcmp(progname, "asciitopgm"))
+    if (!strcmp(progname, "asciitopgm")) {
         writepgm = 1;
-    else if (!strcmp(progname, "asciitopbm"))
+        usage = "usage: asciitopgm [-cwidth <pixels>] [-cheight <pixels>] [-scale <string>] [-font <font-tag>] [<filename>]";
+        parse_pgm_command_line(argc, argv);
+    } else if (!strcmp(progname, "asciitopbm")) {
         writepgm = 0;
-    else
+        usage = "usage: asciitopbm [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [<filename>]";
+        parse_pbm_command_line(argc, argv);
+    } else {
         pm_error("asciitopbm invoked under unknown name");
-    sprintf(usage, "usage: %s [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [<filename>]\n",
-            progname);
-    parse_command_line(argc, argv);
+    }
 
     numlines = 0;
     maxscale = strlen(scale) + mingrey;
