@@ -14,6 +14,9 @@ PREVIEW=false
 REVERSE=""
 FONT_TAG=""
 
+TMP=/tmp/mkasciiart.$$
+trap "rm -f $TMP" 0 1 2 3 15
+
 while [ $# -gt 0 ]
 do
     case "$1" in
@@ -78,8 +81,8 @@ fi
 ppmtopgm |
 pnmscale -xscale 1.0 -yscale $INVYSCALE |
 pnmscale -width "$WIDTH" |
-pnmnorm -quiet -wpercent 3 -bpercent 3 |
-pnmquant -quiet -nofs -meanpixel 99 |
+pnmnorm -quiet -wpercent 3 -bpercent 3 >$TMP
+pnmquant -nofs -meanpixel 99 $TMP 2>/dev/null |
 if $PREVIEW
 then
     pnmscale -width $PWIDTH |
