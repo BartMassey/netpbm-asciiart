@@ -1,13 +1,17 @@
-These are really really old programs that I wrote.  The idea
-is to convert between ASCII and PNM.  My asciitopgm, BTW, is
-way better than the one in netpbm.
+These are really really old programs that I wrote, and have
+recently picked up again.  The idea is to convert between
+ASCII and PNM.  My asciitopgm, BTW, is *way* better than the
+one currently in netpbm.
 
-There's no manual pages here, though there should be. Things
-are maybe clear enough.
+The build process currently depends on having a development
+install of Cairo (http://cairographics.org); this is used to
+get font density information.  Of course, a development
+install of Netpbm (http://netpbm.sourceforge.net) is also
+necessary.
 
-This stuff represents a crazy amount of tweaking. Have fun doing
-more if you like.
+This stuff represents a crazy amount of tweaking. Have fun
+doing more if you like.
 
    Bart Massey
    bart@po8.org
-   2010/11/03
+   2010/11/14
