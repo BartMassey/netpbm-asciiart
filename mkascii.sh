@@ -62,7 +62,7 @@ ppmtopgm |
 pnmscale -xscale 1.0 -yscale "$YSCALE" |
 pnmscale -width "$WIDTH" |
 pnmnorm -wpercent 3 -bpercent 3 2>/dev/null |
-pnmquant -nofs -meanpixel 32 2>/dev/null |
+pnmquant -nofs -meanpixel 99 2>/dev/null |
 if $PREVIEW
 then
     pnmscale -width $PWIDTH |

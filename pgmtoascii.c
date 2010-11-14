@@ -6,37 +6,50 @@
  * distribution of this software for license terms.
  */
 
+#include <assert.h>
+#include <pgm.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
-#include "pgm.h"
 
-char *usage = "usage: pgmtoascii [-r] [-s scale] [file]";
+#include "glyphshades.h"
 
-/* the default 32 gray-level */
-/* black-on-white tonal scale chosen by glyphshades */
-char *scale_bow = " `-',:~;^/*(+?LifzF%ke2$bm08N#M@";
-/* white-on-black tonal scale is reverse of black-on-white */
-char *scale_wob = "@M#N80mb$2ek%FzfiL?+(*/^;~:,'-` ";
+char *usage = "usage: pgmtoascii [-reverse] [-f <font-tag>] [-scale <chars>] [file]";
+
 int maxscale;            /* length of scale (i.e. gray-levels available) */
 char *progname;          /* basename of invoked program */
+int mingrey = 1;         /* if it aint at least this, it's white */
 
 /* command-line arguments */
 FILE *fp;
 char *scale;             /* for pointing to the gray-level being used */
+char *font_tag;
+
+static void strreverse(char *s) {
+    int n = strlen(s);
+    int i;
+    
+    for (i = 0; i < strlen(s) / 2; i++) {
+        char tmp = s[i];
+        s[i] = s[n - i - 1];
+        s[n - i - 1] = tmp;
+    }
+}
 
 static void parse_command_line(int argc, char ** argv) {
     int reverse = 0;
     optEntry *option_def = malloc(100 * sizeof(optStruct));
     optStruct3 opt;
     unsigned int option_def_index;
+    int i;
 
     option_def_index = 0;
     OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
     OPTENT3(0, "reverse", OPT_FLAG, NULL, &reverse, 0);
+    OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
 
     fp = stdin;
-    scale = scale_bow;
+    scale = scalechars_sans;
+    font_tag = "sans";
 
     opt.opt_table = option_def;
     opt.short_allowed = FALSE;  /* We have no short (old-fashioned) options */
@@ -44,10 +57,18 @@ static void parse_command_line(int argc, char ** argv) {
 
     pm_optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
 
-    if (reverse)
-        scale = scale_wob;
     if (argc > 2)
         pm_error(usage);
+    for (i = 0; shades[i].font_tag; i++) {
+        if (!strcmp(font_tag, shades[i].font_tag)) {
+            scale = *shades[i].scale;
+            break;
+        }
+    }
+    if (!shades[i].font_tag)
+        pm_error("unknown font tag %s", font_tag);
+    if (reverse)
+        strreverse(scale);
     if (argc == 2) {
         fp = fopen(argv[1], "r");
         if (!fp)
@@ -64,13 +85,16 @@ int main(int argc, char **argv) {
     pgm_init(&argc, argv);
     parse_command_line(argc, argv);
 
-    maxscale = strlen(scale);
+    maxscale = strlen(scale) + mingrey;
     gp = pgm_readpgm(fp, &cols, &rows, &nscale);
     for (i = 0; i < rows; i++) {
         for (j = 0; j < cols; j++) {
             int k = (maxscale - 1) * (nscale - gp[i][j]) / nscale;
             assert(k >= 0 && k < maxscale);
-            putchar(scale[k]);
+            if (k < mingrey)
+                putchar(' ');
+            else
+                putchar(scale[k - mingrey]);
         }
         putchar('\n');
     }
