@@ -16,7 +16,7 @@ SRC = asciiarttopbm.c pgmtoasciiart.c mkasciiart.sh \
 MISC = Makefile COPYING README TODO mkdist.sh
 
 TARGETS = asciiarttopbm pgmtoasciiart
-MANPAGES = asciiarttopbm.1 asciiarttopgm.1 pgmtoasciiart.1
+MANPAGES = asciiarttopbm.1 asciiarttopgm.1 pgmtoasciiart.1 mkasciiart.1
 
 SHADESRC = shades_typewriter.c shades_sans.c scale_sans.c scale_typewriter.c
 SHADEOBJ = shades_typewriter.o shades_sans.o scale_sans.o scale_typewriter.o

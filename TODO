@@ -1,4 +1,3 @@
-* Add manpage for mkasciiart.
 * Use shades information to improve quality.
 * Add non-bilinear mode for asciiarttopgm.
 * Add dumb mode for asciiarttopgm.

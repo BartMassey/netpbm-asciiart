@@ -5,21 +5,27 @@
 # Please see the file COPYING in the source
 # distribution of this software for license terms.
 PGM="`basename $0`"
-USAGE="$PGM: usage: $PGM [-w <width>] [-y <yscale>] [-p <pwidth>]"
+USAGE="$PGM: usage: $PGM [-reverse] [-font <tag>] [-width <width>] [-yscale <yscale>] [-preview <width>]"
 
 YSCALE=0.4
+INVYSCALE=2.5
 WIDTH=132
 PREVIEW=false
 REVERSE=""
+FONT_TAG=""
 
 while [ $# -gt 0 ]
 do
     case "$1" in
-    -r)
-	REVERSE="-r"
+    -reverse)
+	REVERSE="-reverse"
 	shift
 	;;
-    -w)
+    -font)
+	FONT_TAG="-font $2"
+	shift 2
+	;;
+    -width)
         if [ $# -le 1 ]
 	then
 	    echo "$USAGE" >&2
@@ -28,16 +34,17 @@ do
 	WIDTH=$2
 	shift 2
 	;;
-    -y)
+    -yscale)
         if [ $# -le 1 ]
 	then
 	    echo "$USAGE" >&2
 	    exit 1
 	fi
 	YSCALE=$2
-	shift 2
+        INVYSCALE=`awk "END { print 1.0 / $YSCALE; }" </dev/null`
+        shift 2
 	;;
-    -p)
+    -preview)
 	PREVIEW=true
 	PWIDTH=$2
 	shift 2
@@ -59,14 +66,14 @@ then
 fi
 
 ppmtopgm |
-pnmscale -xscale 1.0 -yscale "$YSCALE" |
+pnmscale -xscale 1.0 -yscale $INVYSCALE |
 pnmscale -width "$WIDTH" |
-pnmnorm -wpercent 3 -bpercent 3 2>/dev/null |
-pnmquant -nofs -meanpixel 99 2>/dev/null |
+pnmnorm -quiet -wpercent 3 -bpercent 3 |
+pnmquant -quiet -nofs -meanpixel 99 |
 if $PREVIEW
 then
     pnmscale -width $PWIDTH |
-    pnmscale -xscale 1.0 -yscale `awk "END { print 1.0 / $YSCALE; }" </dev/null`
+    pnmscale -quiet -xscale 1.0 -yscale $YSCALE
 else
-    pgmtoasciiart $REVERSE
+    pgmtoasciiart $REVERSE $FONT_TAG
 fi
