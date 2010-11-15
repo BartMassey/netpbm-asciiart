@@ -50,8 +50,8 @@ static void parse_pbm_command_line(int argc, char ** argv) {
     OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
     OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
 
-    pix_width = 5;
-    pix_height = 12;
+    pix_width = 6;
+    pix_height = 15;
     sscreen = 0.01;
     scontrast = 0.70;
     scale = scalechars_sans;
