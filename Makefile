@@ -5,6 +5,9 @@
 # distribution of this software for license terms.
 
 DESTDIR = /usr/local
+INCLUDE = -I/local/apps/netpbm/include
+CDEBUG = -O2
+CFLAGS = $(CDEBUG) -Wall $(INCLUDE)
 
 PACKAGE = netpbm-asciiart
 
