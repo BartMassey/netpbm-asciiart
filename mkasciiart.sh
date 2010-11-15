@@ -8,7 +8,6 @@ PGM="`basename $0`"
 USAGE="$PGM: usage: $PGM [-reverse] [-font <tag>] [-width <width>] [-yscale <yscale>] [-preview <width>]"
 
 YSCALE=2.5
-INVYSCALE=0.4
 WIDTH=132
 PREVIEW=false
 REVERSE=""
@@ -49,7 +48,6 @@ do
 	    exit 1
 	fi
 	YSCALE=$2
-        INVYSCALE=`awk "END { print 1.0 / $YSCALE; }" </dev/null`
         shift 2
 	;;
     -preview)
@@ -79,7 +77,7 @@ then
 fi
 
 ppmtopgm |
-pnmscale -xscale 1.0 -yscale $INVYSCALE |
+pnmscale -xscale $YSCALE -yscale 1.0 |
 pnmscale -width "$WIDTH" |
 pnmnorm -quiet -wpercent 3 -bpercent 3 >$TMP
 pnmquant -nofs -meanpixel 99 $TMP 2>/dev/null |
@@ -90,7 +88,7 @@ then
 	echo "$PGM: warning: -preview ignores -reverse and -font-tag" >&2
     fi
     pnmscale -width $PWIDTH |
-    pnmscale -quiet -xscale 1.0 -yscale $YSCALE
+    pnmscale -xscale 1.0 -yscale $YSCALE
 else
     pgmtoasciiart $REVERSE $FONT_TAG
 fi
