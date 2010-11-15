@@ -5,9 +5,12 @@
 # distribution of this software for license terms.
 
 DESTDIR = /usr/local
-INCLUDE = -I/local/apps/netpbm/include
+INCLUDE = -I$(DESTDIR)/include
+# Uncomment for Debian's ancient netpbm-dev
+#DEFINE = -DDEBIAN -DoptParseOptions3=pm_optParseOptions3
 CDEBUG = -O2
-CFLAGS = $(CDEBUG) -Wall $(INCLUDE)
+CFLAGS = $(CDEBUG) -Wall $(INCLUDE) $(DEFINE)
+LIB = -L$(DESTDIR)/lib -lnetpbm
 
 PACKAGE = netpbm-asciiart
 
@@ -28,11 +31,11 @@ all: $(TARGETS)
 
 asciiarttopbm: asciiarttopbm.o shades.o $(SHADEOBJ) glyphshades.h
 	$(CC) $(CFLAGS) -o asciiarttopbm \
-	    asciiarttopbm.o shades.o $(SHADEOBJ) -lnetpbm
+	    asciiarttopbm.o shades.o $(SHADEOBJ) $(LIB)
 
 pgmtoasciiart: pgmtoasciiart.o shades.o $(SHADEOBJ) glyphshades.h
 	$(CC) $(CFLAGS) -o pgmtoasciiart \
-	    pgmtoasciiart.o shades.o $(SHADEOBJ) -lnetpbm
+	    pgmtoasciiart.o shades.o $(SHADEOBJ) $(LIB)
 
 $(SHADEOBJ): glyphshades.h
 

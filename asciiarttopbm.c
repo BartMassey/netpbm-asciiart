@@ -9,6 +9,9 @@
 #include <assert.h>
 #include <pbm.h>
 #include <pgm.h>
+#ifndef DEBIAN
+#include <shhopt.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,10 +58,10 @@ static void parse_pbm_command_line(int argc, char ** argv) {
     font_tag = "sans";
 
     opt.opt_table = option_def;
-    opt.short_allowed = FALSE;  /* We have no short (old-fashioned) options */
-    opt.allowNegNum = TRUE;  /* We may have parms that are negative numbers */
+    opt.short_allowed = 0;  /* We have no short (old-fashioned) options */
+    opt.allowNegNum = 1;  /* We may have parms that are negative numbers */
 
-    pm_optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
+    optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
 
     if (argc > 2)
         pm_error(usage);
@@ -102,10 +105,10 @@ static void parse_pgm_command_line(int argc, char ** argv) {
     font_tag = "sans";
 
     opt.opt_table = option_def;
-    opt.short_allowed = FALSE;  /* We have no short (old-fashioned) options */
-    opt.allowNegNum = TRUE;  /* We may have parms that are negative numbers */
+    opt.short_allowed = 0;  /* We have no short (old-fashioned) options */
+    opt.allowNegNum = 1;  /* We may have parms that are negative numbers */
 
-    pm_optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
+    optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
 
     if (argc > 2)
         pm_error(usage);
