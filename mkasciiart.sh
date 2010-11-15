@@ -13,6 +13,14 @@ PREVIEW=false
 REVERSE=""
 FONT_TAG=""
 
+SCALER=pnmscale
+UNSCALER=pnmscale
+if which pamscale >/dev/null
+then
+    SCALER="pamscale -filter=sinc"
+    UNSCALER="pamscale -nomix"
+fi
+
 TMP=/tmp/mkasciiart.$$
 trap "rm -f $TMP" 0 1 2 3 15
 
@@ -77,8 +85,8 @@ then
 fi
 
 ppmtopgm |
-pnmscale -xscale $YSCALE -yscale 1.0 |
-pnmscale -width "$WIDTH" |
+$SCALER -xscale $YSCALE -yscale 1.0 |
+$SCALER -width "$WIDTH" |
 pnmnorm -quiet -wpercent 3 -bpercent 3 >$TMP
 pnmquant -nofs -meanpixel 99 $TMP 2>/dev/null |
 if $PREVIEW
@@ -87,8 +95,8 @@ then
     then
 	echo "$PGM: warning: -preview ignores -reverse and -font-tag" >&2
     fi
-    pnmscale -width $PWIDTH |
-    pnmscale -xscale 1.0 -yscale $YSCALE
+    $UNSCALER -width $PWIDTH |
+    $UNSCALER -xscale 1.0 -yscale $YSCALE
 else
     pgmtoasciiart $REVERSE $FONT_TAG
 fi
