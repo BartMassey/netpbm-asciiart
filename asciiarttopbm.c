@@ -136,13 +136,20 @@ static void parse_pgm_command_line(int argc, char ** argv) {
 static int g2d(int x, int y) {
     int dx = x % pix_width;
     int dy = y % pix_height;
-    int chx = x / pix_width;
-    int chy = y / pix_height;
-    int g00 = grey[ chy ][ chx ];
-    int g10 = grey[ chy ][ chx + 1 ];
-    int g01 = grey[ chy + 1 ][ chx ];
-    int g11 = grey[ chy + 1 ][ chx + 1 ];
+    int chx0 = x / pix_width;
+    int chy0 = y / pix_height;
+    int chx1 = chx0 + 1;
+    int chy1 = chy0 + 1;
+    int g00, g10, g01, g11;
 
+    if (chx1 >= maxlinelen)
+        chx1 = chx0;
+    if (chy1 >= numlines)
+        chy1 = chy0;
+    g00 = grey[ chy0 ][ chx0 ];
+    g10 = grey[ chy0 ][ chx1 ];
+    g01 = grey[ chy1 ][ chx0 ];
+    g11 = grey[ chy1 ][ chx1 ];
     return
         (g00 * pix_width * pix_height +
          (g10 - g00) * dx * pix_height +
@@ -157,8 +164,8 @@ static int g2d(int x, int y) {
 /* paint a character block one "real" pixel at a time. */
 static void paint_grays(gray **gp) {
     int i, j;
-    int dx = pix_width * (maxlinelen - 1);
-    int dy = pix_height * (numlines - 1);
+    int dx = pix_width * maxlinelen;
+    int dy = pix_height * numlines;
 
     for (i=0; i < dx; i++) {
         for (j=0; j < dy; j++) {
@@ -167,10 +174,6 @@ static void paint_grays(gray **gp) {
             gp[j][i] = v;
         }
     }
-    for (i=0; i < dx; i++)
-        gp[dy][i] = grey[dy / pix_height][i / pix_width];
-    for (j=0; j <= dy; j++)
-        gp[j][dx] = grey[j / pix_height][dx / pix_width];
 }
 
 
