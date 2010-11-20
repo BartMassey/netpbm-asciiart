@@ -20,12 +20,12 @@
 
 static int maxscale;           /* gray-levels available */
 static int threshold;          /* cut-point */
-static char **grey;            /* array of grey levels */
+static char **grays;            /* array of gray levels */
 static int maxlinelen;         /* width in chars */
 static int numlines;           /* height in chars */
 static int screen, contrast;   /* relative to maxscale */
-static int writepgm = 0;       /* true if we are writing a greymap */
-static int mingrey = 15;       /* if it aint white, its at least this */
+static int writepgm = 0;       /* true if we are writing a graymap */
+static int mingray = 15;       /* if it aint white, its at least this */
 static char *usage;
 
 /* command-line arguments */
@@ -187,10 +187,10 @@ static int g2d(int x, int y) {
     assert(ys <= 2 * h);
 
     /* Get the corner gray levels. */
-    g00 = grey[chy0][chx0];
-    g10 = grey[chy0][chx1];
-    g01 = grey[chy1][chx0];
-    g11 = grey[chy1][chx1];
+    g00 = grays[chy0][chx0];
+    g10 = grays[chy0][chx1];
+    g01 = grays[chy1][chx0];
+    g11 = grays[chy1][chx1];
 
     /* Return the bilinear shading on the given corners */
     /* First find the x grays for the top and bottom */
@@ -240,9 +240,9 @@ static void paint_bits(bit **bp) {
             else
                 bp[j][i] = 0;
     for (i=0; i < dx; i++)
-        bp[dy][i] = halftone(grey[dy / pix_height][i / pix_width], i, dy);
+        bp[dy][i] = halftone(grays[dy / pix_height][i / pix_width], i, dy);
     for (j=0; j <= dy; j++)
-        bp[j][dx] = halftone(grey[j / pix_height][dx / pix_width], dx, j);
+        bp[j][dx] = halftone(grays[j / pix_height][dx / pix_width], dx, j);
 }
 
 
@@ -274,7 +274,7 @@ static int get_level(char chixel) {
         return maxscale - 1;
     }
 
-    return lev + mingrey;
+    return lev + mingray;
 }
 
 
@@ -352,26 +352,26 @@ int main(int argc, char **argv) {
     }
 
     numlines = 0;
-    maxscale = strlen(scale) + mingrey;
+    maxscale = strlen(scale) + mingray;
     contrast = (1 - scontrast) * maxscale;
     screen = sscreen * maxscale;
-    grey = (char **) malloc(maxlines * sizeof(char *));
-    if (grey == 0) {
+    grays = (char **) malloc(maxlines * sizeof(char *));
+    if (grays == 0) {
         perror(progname);
         exit(1);
     }
-    gp = grey;
+    gp = grays;
 
     while (safe_gets(gp++)) {
         numlines++;
         if (numlines >= maxlines) {
             maxlines += 10000;
-            grey = realloc(grey, maxlines);
-            if (!grey) {
+            grays = realloc(grays, maxlines);
+            if (!grays) {
                 perror(progname);
                 exit(1);
             }
-            gp = grey + numlines;
+            gp = grays + numlines;
         }
     }
     maxlinelen--;  /* throw away the null */
@@ -380,18 +380,18 @@ int main(int argc, char **argv) {
         pm_error("cannot process empty file");
 
     for (y = 0; y < numlines; y++) {
-        if ((l = strlen(grey[y])) < maxlinelen) {
-            grey[y] = realloc( grey[y], maxlinelen + 1 );
+        if ((l = strlen(grays[y])) < maxlinelen) {
+            grays[y] = realloc( grays[y], maxlinelen + 1 );
             for( x = l; x < maxlinelen; x++ )
-                grey[y][x] = ' ';
-            grey[y][x] = '\0';
+                grays[y][x] = ' ';
+            grays[y][x] = '\0';
         }
         for (x = 0; x < maxlinelen; x++)
-            grey[y][x] = get_level(grey[y][x]);
+            grays[y][x] = get_level(grays[y][x]);
     }
     for (y = 0; y < numlines; y++)
         for (x = 0; x < maxlinelen; x++)
-            threshold += grey[y][x];
+            threshold += grays[y][x];
     threshold /= numlines * maxlinelen;
 
     if (writepgm) {

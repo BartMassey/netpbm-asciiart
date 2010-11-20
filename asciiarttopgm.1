@@ -9,7 +9,7 @@ asciiarttopgm \- convert ASCII art to PGM
 .PP
 \fBasciiarttopgm\fP takes "ASCII art" and converts
 it to \fInetpbm\fP PGM format, expanding it in the
-process into a rectangular bilinear-shaded grey "output cell" per character.
+process into a rectangular bilinear-shaded gray "output cell" per character.
 .SH USAGE
 .PP
 Options are as follows:
@@ -24,7 +24,7 @@ to a given input character.
 .TP
 .BI "-scale " string
 The given \fIstring\fP is treated as a list of ASCII
-characters by increasing black density.  The output grey
+characters by increasing black density.  The output gray
 level for an input character will be determined by the
 position of the character in this list.  Characters not in
 the list will be treated as black.  The space character is
@@ -44,7 +44,7 @@ The cell-generation and bilinear-shading functionality of
 this program is largely a matter of convenience.
 For better quality, it is probably best to use a cell
 size of 1x1 and postprocess the result using \fInetpbm\fP.
-The output cells of the greymap are produced by a bilinear
+The output cells of the graymap are produced by a bilinear
 shader.  This does an OK job, but it could definitely be improved.
 .PP
 The font tones have been measured automatically by rendering

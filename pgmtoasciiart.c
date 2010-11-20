@@ -19,7 +19,7 @@
 static char *usage = "usage: pgmtoasciiart [-reverse] [-f <font-tag>] [-scale <chars>] [file]";
 
 static int maxscale;      /* length of scale (i.e. gray-levels available) */
-static int mingrey = 1;   /* if it aint at least this, it's white */
+static int mingray = 1;   /* if it aint at least this, it's white */
 
 /* command-line arguments */
 static FILE *fp;
@@ -90,19 +90,19 @@ int main(int argc, char **argv) {
     pgm_init(&argc, argv);
     parse_command_line(argc, argv);
 
-    maxscale = strlen(scale) + mingrey;
+    maxscale = strlen(scale) + mingray;
     gp = pgm_readpgm(fp, &cols, &rows, &nscale);
     for (i = 0; i < rows; i++) {
         for (j = 0; j < cols; j++) {
             int k = (maxscale - 1) * (nscale - gp[i][j]) / nscale;
             assert(k >= 0 && k < maxscale);
             if (!reverse) {
-                if (k < mingrey)
+                if (k < mingray)
                     putchar(' ');
                 else
-                    putchar(scale[k - mingrey]);
+                    putchar(scale[k - mingray]);
             } else {
-                if (k >= maxscale - mingrey)
+                if (k >= maxscale - mingray)
                     putchar(' ');
                 else
                     putchar(scale[k]);
