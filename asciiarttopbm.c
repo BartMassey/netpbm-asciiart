@@ -132,30 +132,72 @@ static void parse_pgm_command_line(int argc, char ** argv) {
 }
 
 
+static int clamp(int c, int m) {
+    if (c < 0)
+        return 0;
+    if (c > m - 1)
+        return m - 1;
+    return c;
+}
+
 /* bilinear (2-d Gouraud) shading */
 static int g2d(int x, int y) {
-    int dx = x % pix_width;
-    int dy = y % pix_height;
-    int chx0 = x / pix_width;
-    int chy0 = y / pix_height;
-    int chx1 = chx0 + 1;
-    int chy1 = chy0 + 1;
-    int g00, g10, g01, g11;
+    int w = pix_width;
+    int h = pix_height;
+    int dx = x % w;
+    int dy = y % h;
+    int chx1 = x / w;
+    int chy1 = y / h;
+    int chx0, chy0;
+    int g00, g01, g10, g11, g0, g1, g;
+    int xs, ys;
 
-    if (chx1 >= maxlinelen)
-        chx1 = chx0;
-    if (chy1 >= numlines)
-        chy1 = chy0;
-    g00 = grey[ chy0 ][ chx0 ];
-    g10 = grey[ chy0 ][ chx1 ];
-    g01 = grey[ chy1 ][ chx0 ];
-    g11 = grey[ chy1 ][ chx1 ];
-    return
-        (g00 * pix_width * pix_height +
-         (g10 - g00) * dx * pix_height +
-         (g01 - g00) * dy * pix_width +
-         (g00 - g10 - g01 +g11) * dx * dy) /
-        (pix_width * pix_height);
+    /* Figure out which quadrant of the cell we're in and
+       thus find the corners. While we're at it, compute the
+       scale factors. We work in a common denominator of 4 *
+       (w - 1) * (h - 1) to keep things in integers. We are
+       careful to make sure that the cell centers contain
+       some of the requested color. */
+    --w; --h;
+    /* First x. */
+    if (dx == w / 2 || dx == (w + 1) / 2) {
+        chx0 = chx1;
+        xs = 2 * w;
+    } else if (2 * dx < w) {
+        chx0 = clamp(chx1 - 1, maxlinelen);
+        xs = (w + 1) + dx + 1;
+    } else {
+        chx0 = clamp(chx1 + 1, maxlinelen);
+        xs = 2 * (w + 1) - dx;
+    }
+    assert(0 <= xs);
+    assert(xs <= 2 * w);
+    /* Then y. */
+    if (dy == h / 2 || dy == (h + 1) / 2) {
+        chy0 = chy1;
+        ys = 2 * h;
+    } else if (2 * dy < h) {
+        chy0 = clamp(chy1 - 1, maxlinelen);
+        ys = (h + 1) + dy + 1;
+    } else {
+        chy0 = clamp(chy1 + 1, maxlinelen);
+        ys = 2 * (h + 1) - dy;
+    }
+    assert(0 <= ys);
+    assert(ys <= 2 * h);
+
+    /* Get the corner gray levels. */
+    g00 = grey[chy0][chx0];
+    g10 = grey[chy0][chx1];
+    g01 = grey[chy1][chx0];
+    g11 = grey[chy1][chx1];
+
+    /* Return the bilinear shading on the given corners */
+    /* First find the x grays for the top and bottom */
+    g0 = g00 * 2 * w + (g10 - g00) * xs;
+    g1 = g01 * 2 * w + (g11 - g01) * xs;
+    g = g0 * 2 * h + (g1 - g0) * ys;
+    return g / (4 * w * h);
 }
 
 
