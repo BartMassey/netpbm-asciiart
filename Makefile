@@ -7,9 +7,9 @@
 DESTDIR = /usr/local
 INCLUDE = -I$(DESTDIR)/include
 # Uncomment for Debian's ancient netpbm-dev
-DEFINE = -DDEBIAN -DoptParseOptions3=pm_optParseOptions3
-#CDEBUG = -O2
-CDEBUG = -g -Wall
+#DEFINE = -DDEBIAN -DoptParseOptions3=pm_optParseOptions3
+#CDEBUG = -g
+CDEBUG = -O2
 CFLAGS = $(CDEBUG) -Wall $(INCLUDE) $(DEFINE)
 LIB = -L$(DESTDIR)/lib -lnetpbm
 
