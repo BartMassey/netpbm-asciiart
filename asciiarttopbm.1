@@ -49,6 +49,14 @@ produced with a particular font in mind.  Available
 font tags as of this writing are "sans", which corresponds
 to \fIBitstream Vera Sans Mono\fP, and "typewriter", which
 corresponds to \fICourier New\fP.
+.TP
+.B "-nofilter"
+If the cell width or cell height is greater than 2, by
+default a primitive triangular anti-aliasing filter
+(corresponding to bilinear shading) is applied. This flag
+stops that from happening, shading the entire cell with the
+gray value corresponding to the input character for that
+cell.
 .SH NOTES
 .PP
 The functionality of this program is largely

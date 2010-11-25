@@ -22,6 +22,19 @@ to a given input character.
 Gives the pixel-height of the graphical output cell corresponding
 to a given input character.
 .TP
+.B "-unity"
+Sets the cell width and height to 1. Useful for situations
+in which post-processing will be done by an external scaler,
+or no scaling is desired.
+.TP
+.B "-nofilter"
+If the cell width or cell height is greater than 2, by
+default a primitive triangular anti-aliasing filter
+(corresponding to bilinear shading) is applied. This flag
+stops that from happening, shading the entire cell with the
+gray value corresponding to the input character for that
+cell.
+.TP
 .BI "-scale " string
 The given \fIstring\fP is treated as a list of ASCII
 characters by increasing black density.  The output gray
