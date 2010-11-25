@@ -1,5 +1,2 @@
-* Check packaging to make sure this thing still builds
-  with ancient Debian netpbm from hell.
 * Use shades information to improve quality.
-* Add non-bilinear mode for asciiarttopgm.
 * Add dumb mode for asciiarttopgm.
