@@ -148,42 +148,40 @@ static int g2d(int x, int y) {
     int dy = y % h;
     int chx1 = x / w;
     int chy1 = y / h;
-    int chx0, chy0;
+    int chx0 = chx1;
+    int chy0 = chy1;
     int g00, g01, g10, g11, g0, g1, g;
     int xs, ys;
 
     /* Figure out which quadrant of the cell we're in and
        thus find the corners. While we're at it, compute the
-       scale factors. We work in a common denominator of 4 *
-       (w - 1) * (h - 1) to keep things in integers. We are
-       careful to make sure that the cell centers contain
-       some of the requested color. */
-    --w; --h;
+       scale factors. We work in a common denominator of
+       4 * w * h to keep things in integers. We are careful to
+       make sure that the cell centers contain some of the
+       requested color. */
     /* First x. */
-    if (dx == w / 2 || dx == (w + 1) / 2) {
-        chx0 = chx1;
-        xs = 2 * w;
-    } else if (2 * dx < w) {
+    if (2 * dx < w) {
+        /* w..2w */
         chx0 = clamp(chx1 - 1, maxlinelen);
-        xs = (w + 1) + dx + 1;
+        xs = w + 2 * dx;
     } else {
-        chx0 = clamp(chx1 + 1, maxlinelen);
-        xs = 2 * (w + 1) - dx;
+        /* 2w..w */
+        chx1 = clamp(chx0 + 1, maxlinelen);
+        xs = w + 2 * (w - dx);
     }
-    assert(0 <= xs);
+    assert(xs >= w);
     assert(xs <= 2 * w);
     /* Then y. */
-    if (dy == h / 2 || dy == (h + 1) / 2) {
-        chy0 = chy1;
-        ys = 2 * h;
-    } else if (2 * dy < h) {
-        chy0 = clamp(chy1 - 1, maxlinelen);
-        ys = (h + 1) + dy + 1;
+    if (2 * dy < h) {
+        /* h..2h */
+        chy0 = clamp(chy1 - 1, numlines);
+        ys = h + 2 * dy;
     } else {
-        chy0 = clamp(chy1 + 1, maxlinelen);
-        ys = 2 * (h + 1) - dy;
+        /* 2h..h */
+        chy1 = clamp(chy0 + 1, numlines);
+        ys = h + 2 * (h - dy);
     }
-    assert(0 <= ys);
+    assert(ys >= h);
     assert(ys <= 2 * h);
 
     /* Get the corner gray levels. */
@@ -194,9 +192,9 @@ static int g2d(int x, int y) {
 
     /* Return the bilinear shading on the given corners */
     /* First find the x grays for the top and bottom */
-    g0 = g00 * 2 * w + (g10 - g00) * xs;
-    g1 = g01 * 2 * w + (g11 - g01) * xs;
-    g = g0 * 2 * h + (g1 - g0) * ys;
+    g0 = g00 * xs + g10 * (2 * w - xs);
+    g1 = g01 * xs + g11 * (2 * w - xs);
+    g =  g0 * ys + g1 * (2 * h - ys);
     return g / (4 * w * h);
 }
 
