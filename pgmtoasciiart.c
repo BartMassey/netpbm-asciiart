@@ -8,7 +8,9 @@
 
 #include <assert.h>
 #include <pgm.h>
-#ifndef DEBIAN
+#ifdef DEBIAN
+#define optParseOptions3 pm_optParseOptions3
+#else
 #include <shhopt.h>
 #endif
 #include <stdio.h>

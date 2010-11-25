@@ -9,7 +9,9 @@
 #include <assert.h>
 #include <pbm.h>
 #include <pgm.h>
-#ifndef DEBIAN
+#ifdef DEBIAN
+#define optParseOptions3 pm_optParseOptions3
+#else
 #include <shhopt.h>
 #endif
 #include <stdio.h>
@@ -37,34 +39,16 @@ static char *scale;
 static char *font_tag;
 static unsigned int unity, nofilter;
 
-static void parse_pbm_command_line(int argc, char ** argv) {
-    optEntry *option_def = malloc(100 * sizeof(optStruct));
-    optStruct3 opt;
-    unsigned int option_def_index;
-    int i;
-
-    option_def_index = 0;
-    OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
-    OPTENT3(0, "cheight", OPT_INT, &pix_height, NULL, 0);
-    OPTENT3(0, "mesh", OPT_FLOAT, &sscreen, NULL, 0);
-    OPTENT3(0, "contrast", OPT_FLOAT, &scontrast, NULL, 0);
-    OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
-    OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
-    OPTENT3(0, "nofilter", OPT_FLAG, NULL, &nofilter, 0);
-
-    pix_width = 6;
-    pix_height = 15;
-    sscreen = 0.01;
-    scontrast = 0.70;
+static void parse_pre(void) {
+    pix_width = 5;
+    pix_height = 12;
     scale = scalechars_sans;
     font_tag = "sans";
+}
 
-    opt.opt_table = option_def;
-    opt.short_allowed = 0;  /* We have no short (old-fashioned) options */
-    opt.allowNegNum = 1;  /* We may have parms that are negative numbers */
-
-    optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
-
+static void parse_post(int argc, char ** argv) {
+    int i;
+    
     if (argc > 2)
         pm_error(usage);
     if (pix_width <= 0)
@@ -88,12 +72,42 @@ static void parse_pbm_command_line(int argc, char ** argv) {
     }
 }
 
+static void parse_pbm_command_line(int argc, char ** argv) {
+    optEntry *option_def = malloc(100 * sizeof(optStruct));
+    optStruct3 opt;
+    unsigned int option_def_index;
+
+    usage = "usage: asciiarttopbm [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [-nofilter] [<filename>]";
+
+    option_def_index = 0;
+    OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
+    OPTENT3(0, "cheight", OPT_INT, &pix_height, NULL, 0);
+    OPTENT3(0, "mesh", OPT_FLOAT, &sscreen, NULL, 0);
+    OPTENT3(0, "contrast", OPT_FLOAT, &scontrast, NULL, 0);
+    OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
+    OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
+    OPTENT3(0, "nofilter", OPT_FLAG, NULL, &nofilter, 0);
+
+    parse_pre();
+    sscreen = 0.01;
+    scontrast = 0.70;
+
+    opt.opt_table = option_def;
+    opt.short_allowed = 0;  /* We have no short (old-fashioned) options */
+    opt.allowNegNum = 1;  /* We may have parms that are negative numbers */
+
+    optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
+
+    parse_post(argc, argv);
+}
+
 
 static void parse_pgm_command_line(int argc, char ** argv) {
     optEntry *option_def = malloc(100 * sizeof(optStruct));
     optStruct3 opt;
     unsigned int option_def_index;
-    int i;
+
+    usage = "usage: asciiarttopgm [-cwidth <pixels>] [-cheight <pixels>] [-scale <string>] [-font <font-tag>] [-unity] [-nofilter] [<filename>]";
 
     option_def_index = 0;
     OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
@@ -103,12 +117,9 @@ static void parse_pgm_command_line(int argc, char ** argv) {
     OPTENT3(0, "nofilter", OPT_FLAG, NULL, &nofilter, 0);
     OPTENT3(0, "unity", OPT_FLAG, NULL, &unity, 0);
 
-    pix_width = 5;
-    pix_height = 12;
+    parse_pre();
     sscreen = 0.01;
     scontrast = 0.70;
-    scale = scalechars_sans;
-    font_tag = "sans";
     unity = 0;
     nofilter = 0;
 
@@ -118,39 +129,14 @@ static void parse_pgm_command_line(int argc, char ** argv) {
 
     optParseOptions3(&argc, argv, opt, sizeof(opt), 0);
 
-    if (argc > 2)
-        pm_error(usage);
-    if (pix_width <= 0)
-        pm_error("-cwidth must be positive.");
-    if (pix_height <= 0)
-        pm_error("-cheight must be positive.");
     if (unity) {
         pix_width = 1;
         pix_height = 1;
     }
     if (pix_width <= 2 && pix_height <= 2)
         nofilter = 1;
-    
-    for (i = 0; shades[i].font_tag; i++) {
-        if (!strcmp(font_tag, shades[i].font_tag)) {
-            scale = *shades[i].scale;
-            break;
-        }
-    }
-    for (i = 0; shades[i].font_tag; i++) {
-        if (!strcmp(font_tag, shades[i].font_tag)) {
-            scale = *shades[i].scale;
-            break;
-        }
-    }
-    if (!shades[i].font_tag)
-        pm_error("unknown font tag %s", font_tag);
 
-    if (argc == 2) {
-        fp = fopen(argv[1], "r");
-        if (!fp)
-            pm_error("could not open input file");
-    }
+    parse_post(argc, argv);
 }
 
 
@@ -364,11 +350,9 @@ int main(int argc, char **argv) {
     fp = stdin;
     if (!strcmp(progname, "asciiarttopgm")) {
         writepgm = 1;
-        usage = "usage: asciiarttopgm [-cwidth <pixels>] [-cheight <pixels>] [-scale <string>] [-font <font-tag>] [-unity] [-nofilter] [<filename>]";
         parse_pgm_command_line(argc, argv);
     } else if (!strcmp(progname, "asciiarttopbm")) {
         writepgm = 0;
-        usage = "usage: asciiarttopbm [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [-nofilter] [<filename>]";
         parse_pbm_command_line(argc, argv);
     } else {
         pm_error("asciiarttopbm/asciiarttopgm invoked under unknown name");
