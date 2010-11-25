@@ -161,28 +161,28 @@ static int g2d(int x, int y) {
        requested color. */
     /* First x. */
     if (2 * dx < w) {
-        /* w..2w */
+        /* 0..w */
         chx0 = clamp(chx1 - 1, maxlinelen);
-        xs = w + 2 * dx;
+        xs = 2 * dx;
     } else {
-        /* 2w..w */
-        chx1 = clamp(chx0 + 1, maxlinelen);
-        xs = w + 2 * (w - dx);
+        /* 0..w */
+        chx0 = clamp(chx1 + 1, maxlinelen);
+        xs = 2 * (w - dx);
     }
-    assert(xs >= w);
-    assert(xs <= 2 * w);
+    assert(xs >= 0);
+    assert(xs <= w);
     /* Then y. */
     if (2 * dy < h) {
-        /* h..2h */
+        /* 0..h */
         chy0 = clamp(chy1 - 1, numlines);
-        ys = h + 2 * dy;
+        ys = 2 * dy;
     } else {
-        /* 2h..h */
-        chy1 = clamp(chy0 + 1, numlines);
-        ys = h + 2 * (h - dy);
+        /* 0..h */
+        chy0 = clamp(chy1 + 1, numlines);
+        ys = 2 * (h - dy);
     }
-    assert(ys >= h);
-    assert(ys <= 2 * h);
+    assert(ys >= 0);
+    assert(ys <= h);
 
     /* Get the corner gray levels. */
     g00 = grays[chy0][chx0];
@@ -192,9 +192,9 @@ static int g2d(int x, int y) {
 
     /* Return the bilinear shading on the given corners */
     /* First find the x grays for the top and bottom */
-    g0 = g00 * xs + g10 * (2 * w - xs);
-    g1 = g01 * xs + g11 * (2 * w - xs);
-    g =  g0 * ys + g1 * (2 * h - ys);
+    g0 = g10 * (w + xs) + g00 * (w - xs);
+    g1 = g11 * (w + xs) + g01 * (w - xs);
+    g =  g1 * (h + ys) + g0 * (h - ys);
     return g / (4 * w * h);
 }
 
