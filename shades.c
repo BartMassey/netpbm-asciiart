@@ -9,7 +9,7 @@
 #include "glyphshades.h"
 
 struct shade shades[] = {
-    {"sans", &scalechars_sans, &glyphshades_sans},
-    {"typewriter", &scalechars_typewriter, &glyphshades_typewriter},
+    {"sans", &scalechars_sans, glyphshades_sans},
+    {"typewriter", &scalechars_typewriter, glyphshades_typewriter},
     {0, 0, 0}
 };

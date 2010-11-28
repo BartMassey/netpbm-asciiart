@@ -81,8 +81,6 @@ struct glyphshades {
     float gw;
 } glyphshades[95];
 
-
-
 int cgs(const void *g1, const void *g2) {
     float gw = ((struct glyphshades *)g1)->gw - ((struct glyphshades *)g2)->gw;
     if (gw < 0)

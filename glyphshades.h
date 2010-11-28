@@ -12,7 +12,7 @@ struct glyphshade {
 struct shade {
     char *font_tag;
     char **scale;
-    struct glyphshade (*shades)[];
+    struct glyphshade *shades;
 };
 
 extern struct glyphshade glyphshades_sans[];

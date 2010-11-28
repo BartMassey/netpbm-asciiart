@@ -10,7 +10,7 @@ INCLUDE = -I$(DESTDIR)/include
 #DEFINE = -DDEBIAN
 CDEBUG = -O2
 CFLAGS = $(CDEBUG) -Wall $(INCLUDE) $(DEFINE)
-LIB = -L$(DESTDIR)/lib -lnetpbm
+LIB = -L$(DESTDIR)/lib -lnetpbm -lm
 
 PACKAGE = netpbm-asciiart
 

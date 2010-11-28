@@ -7,6 +7,7 @@
  */
 
 #include <assert.h>
+#include <math.h>
 #include <pbm.h>
 #include <pgm.h>
 #ifdef DEBIAN
@@ -28,6 +29,7 @@ static int numlines;           /* height in chars */
 static int screen, contrast;   /* relative to maxscale */
 static int writepgm = 0;       /* true if we are writing a graymap */
 static int mingray = 15;       /* if it aint white, its at least this */
+static struct glyphshade *shade;    /* by default, shade properly */
 static char *usage;
 
 /* command-line arguments */
@@ -37,12 +39,14 @@ static int pix_width, pix_height;
 static float sscreen, scontrast;
 static char *scale;
 static char *font_tag;
-static unsigned int unity, nofilter;
+static unsigned int unity, nofilter, tonescale;
 
 static void parse_pre(void) {
     pix_width = 5;
     pix_height = 12;
-    scale = scalechars_sans;
+    tonescale = 0;
+    scale = 0;
+    shade = 0;
     font_tag = "sans";
 }
 
@@ -55,14 +59,16 @@ static void parse_post(int argc, char ** argv) {
         pm_error("-cwidth must be positive.");
     if (pix_height <= 0)
         pm_error("-cheight must be positive.");
-    
+
     for (i = 0; shades[i].font_tag; i++) {
         if (!strcmp(font_tag, shades[i].font_tag)) {
-            scale = *shades[i].scale;
+            if (tonescale && !scale)
+                scale = *shades[i].scale;
+            shade = shades[i].shades;
             break;
         }
     }
-    if (!shades[i].font_tag)
+    if (!shade)
         pm_error("unknown font tag %s", font_tag);
 
     if (argc == 2) {
@@ -77,7 +83,7 @@ static void parse_pbm_command_line(int argc, char ** argv) {
     optStruct3 opt;
     unsigned int option_def_index;
 
-    usage = "usage: asciiarttopbm [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-scale <string>] [-font <font-tag>] [-nofilter] [<filename>]";
+    usage = "usage: asciiarttopbm [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-tonescale] [-scale <string>] [-font <font-tag>] [-nofilter] [<filename>]";
 
     option_def_index = 0;
     OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
@@ -85,6 +91,7 @@ static void parse_pbm_command_line(int argc, char ** argv) {
     OPTENT3(0, "mesh", OPT_FLOAT, &sscreen, NULL, 0);
     OPTENT3(0, "contrast", OPT_FLOAT, &scontrast, NULL, 0);
     OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
+    OPTENT3(0, "tonescale", OPT_FLAG, NULL, &tonescale, 0);
     OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
     OPTENT3(0, "nofilter", OPT_FLAG, NULL, &nofilter, 0);
 
@@ -112,6 +119,7 @@ static void parse_pgm_command_line(int argc, char ** argv) {
     option_def_index = 0;
     OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
     OPTENT3(0, "cheight", OPT_INT, &pix_height, NULL, 0);
+    OPTENT3(0, "tonescale", OPT_FLAG, NULL, &tonescale, 0);
     OPTENT3(0, "scale", OPT_STRING, &scale, NULL, 0);
     OPTENT3(0, "font", OPT_STRING, &font_tag, NULL, 0);
     OPTENT3(0, "nofilter", OPT_FLAG, NULL, &nofilter, 0);
@@ -262,28 +270,36 @@ static void paint_bits(bit **bp) {
 static int get_level(char chixel) {
     register int lev;
     static int warned = 0;
-    int scalelen = strlen(scale);
+    static int scalelen = 0;
 
     if (chixel == ' ')
         return 0;
-    for (lev = 0; lev < scalelen && scale[lev] != chixel; lev++)
-        /* do nothing */;
-
-    /* if not found, then max it out. */
-    if (lev >= scalelen) {
-        if (!warned) {
-            if (chixel >= ' ' && chixel < 127)
-                pm_message("warning: unexpected char '%c' (%d) in input set to black (future warnings suppressed)",
-                           chixel, chixel);
-            else
-                pm_message("warning: unexpected char (%d) in input set to black (future warnings suppressed)",
-                           chixel);
-            warned = 1;
-        }
-        return maxscale - 1;
+    if (scale) {
+        if (scalelen == 0)
+            scalelen = strlen(scale);
+        for (lev = 0; lev < scalelen; lev++)
+            if (scale[lev] == chixel)
+                return lev + mingray;
+    } else {
+        for (lev = 0; lev < 95; lev++)
+            if (shade[lev].ch == chixel)
+                return floor(shade[lev].w * 255 + 0.5);
     }
 
-    return lev + mingray;
+    /* don't know how to color this one */
+    if (warned <= 0) {
+        if (chixel >= ' ' && chixel < 127)
+            pm_message("warning: unexpected char '%c' (%d) in input set to black",
+                       chixel, chixel);
+        else
+            pm_message("warning: unexpected char (%d) in input set to black",
+                       chixel);
+        warned++;
+    } else if (warned <= 1) {
+        pm_message("warning: more unexpected char warnings suppressed");
+        warned++;
+    }
+    return maxscale - 1;
 }
 
 
@@ -359,7 +375,10 @@ int main(int argc, char **argv) {
     }
 
     numlines = 0;
-    maxscale = strlen(scale) + mingray;
+    if (scale)
+        maxscale = strlen(scale) + mingray;
+    else
+        maxscale = floor(shade[94].w * 255 + 0.5);
     contrast = (1 - scontrast) * maxscale;
     screen = sscreen * maxscale;
     grays = (char **) malloc(maxlines * sizeof(char *));
