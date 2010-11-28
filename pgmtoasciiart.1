@@ -23,12 +23,34 @@ Options are as follows:
 Reverses the tonal scale, producing an image that is
 intended to be displayed as white-on-black.
 .TP
+.B "-clamp"
+Rather than compress the contrast due to the non-blackness
+of the darkest character, just give all input pixels darker
+than the darkest character the darkest character value.
+.TP
+.B "-threshold"
+When the the input pixel lies between two characters'
+values, rather than choose an output character
+weighted-randomly, just pick the closest.
+.TP
 .BI "-scale " string
 The given \fIstring\fP is treated as a list of ASCII
-characters by increasing black density.  The output character
-for a given input gray level will be determined by the
-position of gray along this list. The space character is
+characters by increasing black density.  The output gray
+level for an input character will be determined by the
+position of the character in this list.  Characters not in
+the list will be treated as black.  The space character is
 always white, and should be omitted.
+.IP
+When neither \fB-scale\fP or \fB-tonescale\fP are given, the
+output gray level will be determined directly by the
+measured proportional density of the input character. See
+the \fB-font\fP flag to select which font information will
+be used in this calculation.
+.TP
+.B "-tonescale"
+Like \fB-scale\fP, except that a default scale will be
+constructed by sorting the glyphs according to character
+density taken from font information.
 .TP
 .BI "-font " tag
 The given font \fItag\fP is used to determine which built-in scale to

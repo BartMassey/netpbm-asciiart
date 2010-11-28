@@ -83,7 +83,7 @@ static void parse_pbm_command_line(int argc, char ** argv) {
     optStruct3 opt;
     unsigned int option_def_index;
 
-    usage = "usage: asciiarttopbm [-cwidth <pixels>] [-cheight <pixels>] [-contrast <0..1>] [-mesh <0..1>] [-tonescale] [-scale <string>] [-font <font-tag>] [-nofilter] [<filename>]";
+    usage = "usage: asciiarttopbm [-cwidth <pixels>] [-cheight <pixels>] [-nofilter]\n    [-contrast <0..1>] [-mesh <0..1>]\n    [-tonescale] [-scale <string>] [-font <font-tag>] [<filename>]";
 
     option_def_index = 0;
     OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
@@ -114,7 +114,7 @@ static void parse_pgm_command_line(int argc, char ** argv) {
     optStruct3 opt;
     unsigned int option_def_index;
 
-    usage = "usage: asciiarttopgm [-cwidth <pixels>] [-cheight <pixels>] [-scale <string>] [-font <font-tag>] [-unity] [-nofilter] [<filename>]";
+    usage = "usage: asciiarttopgm [-cwidth <pixels>] [-cheight <pixels>] [-unity] [-nofilter]\n     [-tonescale] [-scale <string>] [-font <font-tag>] [<filename>]";
 
     option_def_index = 0;
     OPTENT3(0, "cwidth", OPT_INT, &pix_width, NULL, 0);
