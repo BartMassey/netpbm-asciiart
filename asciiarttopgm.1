@@ -42,27 +42,43 @@ level for an input character will be determined by the
 position of the character in this list.  Characters not in
 the list will be treated as black.  The space character is
 always white, and should be omitted.
+.IP
+When neither \fB-scale\fP or \fB-tonescale\fP are given, the
+output gray level will be determined directly by the
+measured proportional density of the input character. See
+the \fB-font\fP flag to select which font information will
+be used in this calculation.
+.TP
+.B "-tonescale"
+Like \fB-scale\fP, except that a default scale will be
+constructed by sorting the glyphs according to character
+density taken from font information.
 .TP
 .BI "-font " tag
-The given font \fItag\fP is used to determine which built-in scale to
-use. Different fonts have different character densities, so this
+The given font \fI"tag"\fP is used to determine which
+built-in scale or shading to use.  Available font tags as of
+this writing are "sans", which corresponds to \fIBitstream
+Vera Sans Mono\fP, and "typewriter", which corresponds to
+\fICourier New\fP. The default is "sans".
+.IP
+Different fonts have different character densities, so this
 argument may be useful in dealing with ASCII art that was
-produced with a particular font in mind.  Available
-font tags as of this writing are "sans", which corresponds
-to \fIBitstream Vera Sans Mono\fP, and "typewriter", which
-corresponds to \fICourier New\fP.
+produced with a particular font in mind.
 .SH NOTES
 .PP
 The cell-generation and bilinear-shading functionality of
-this program is largely a matter of convenience.
-For better quality, it is probably best to use a cell
-size of 1x1 and postprocess the result using \fInetpbm\fP.
-The output cells of the graymap are produced by a bilinear
-shader.  This does an OK job, but it could definitely be improved.
+this program is largely a matter of convenience.  For better
+quality, it is probably best to use the \fB-unity\fP flag
+and postprocess the result using \fInetpbm\fP.  The output
+cells of the graymap are produced by a bilinear shader.
+This does an OK job, but it could definitely be improved.
 .PP
 The font tones have been measured automatically by rendering
 characters. Character patterning is in no way taken into
 account in this process.
+.PP
+It would be nice to include a dot-matrix font tag for the
+old ASCII art that might expect it.
 .SH AUTHOR
 Bart Massey <bart@cs.pdx.edu>
 .SH "SEE ALSO"
