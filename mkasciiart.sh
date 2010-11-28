@@ -5,7 +5,8 @@
 # Please see the file COPYING in the source
 # distribution of this software for license terms.
 PGM="`basename $0`"
-USAGE="$PGM: usage: $PGM [-reverse] [-font <tag>] [-width <width>] [-yscale <yscale>] [-preview <width>]"
+USAGE="$PGM: usage: ... | $PGM [-width <width>] [-yscale <yscale>]\
+    [-preview <width>] [<pgmtoascii-args>]"
 
 YSCALE=2.5
 WIDTH=132
@@ -27,19 +28,6 @@ trap "rm -f $TMP" 0 1 2 3 15
 while [ $# -gt 0 ]
 do
     case "$1" in
-    -reverse)
-	REVERSE="-reverse"
-	shift
-	;;
-    -font)
-        if [ $# -le 1 ]
-	then
-	    echo "$USAGE" >&2
-	    exit 1
-	fi
-	FONT_TAG="-font $2"
-	shift 2
-	;;
     -width)
         if [ $# -le 1 ]
 	then
@@ -69,20 +57,10 @@ do
 	shift 2
 	;;
     -*)
-	echo "$USAGE" >&2
-	exit 1
-	;;
-    *)
 	break
 	;;
     esac
 done
-
-if [ $# -gt 1 ]
-then
-    echo "$USAGE" >&1
-    exit 1
-fi
 
 ppmtopgm |
 $SCALER -xscale $YSCALE -yscale 1.0 |
@@ -91,12 +69,13 @@ pnmnorm -quiet -wpercent 3 -bpercent 3 >$TMP
 pnmquant -nofs -meanpixel 99 $TMP 2>/dev/null |
 if $PREVIEW
 then
-    if [ "$REVERSE" != "" ] || [ "$FONT_TAG" != "" ]
+    if [ "$*" != "" ]
     then
-	echo "$PGM: warning: -preview ignores -reverse and -font-tag" >&2
+	echo "$PGM: extra args to -preview" >&2
+	exit 1
     fi
-    $UNSCALER -width $PWIDTH |
-    $UNSCALER -xscale 1.0 -yscale $YSCALE
+    $UNSCALER -width "$PWIDTH" |
+    $UNSCALER -xscale 1.0 -yscale "$YSCALE"
 else
-    pgmtoasciiart $REVERSE $FONT_TAG
+    pgmtoasciiart "$@"
 fi

@@ -1,13 +1,14 @@
-.TH MKASCIIART 1 "15 November 2010"
+.TH MKASCIIART 1 "27 November 2010"
 .SH NAME
 mkasciiart \- conveniently convert PGM to ASCII art
 .SH SYNOPSIS
 .B mkasciiart
-.RI [ options... ]
+.RI [ options... ] [pgmtoasciiart options...]
 .SH DESCRIPTION
 .PP
 \fBmkasciiart\fP takes \fInetpbm\fP PGM format on standard
-input and converts it to "ASCII art" using
+input (NOTE: does not accept a filename argument) and
+converts it to "ASCII art" using
 .BR pgmtoasciiart (1)
 and other
 .BR netpbm (1)
@@ -18,18 +19,14 @@ heuristics for quality conversion that the author found
 useful.  It also serves as an example of
 .BR pgmtoasciiart (1)
 usage.
+.PP
+This script accepts arguments that it passes on to
+\fBpgmtoasciiart\fP(1).  The \fBmkasciiart\fP-specific
+arguments must come before the \fBpgmtoasciiart\fP
+arguments.
 .SH USAGE
 .PP
 Options are as follows:
-.TP
-.B "-reverse"
-This flag is passed to
-.BR pgmtoasciiart (1).
-.TP
-.BR "-font " tag
-This flag is passed to
-.BR pgmtoasciiart (1).
-.TP
 .BI "-width " cols
 Produce ASCII art that is \fIcols\fP columns wide. Default
 is 132 columns, because the author is \fIold\fP.
@@ -43,10 +40,12 @@ leading makes this more pronounced.  The unitless number
 .BI "-preview " width
 Instead of invoking
 .BR pgmtoasciiart (1),
-produce a PGM of the given pixel \fIwidth\fP
-on standard output, showing what the preprocessed
-image looks like before final conversion to ASCII.
-Mostly useful for debugging.
+produce a PGM of the given pixel \fIwidth\fP on standard
+output, showing what the preprocessed image looks like
+before final conversion to ASCII.  Mostly useful for
+debugging. Do not pass any
+.B pgmtoasciiart
+arguments along with this flag.
 .SH BUGS
 .PP
 The \fIyscale\fP should be automatically derived from the
@@ -56,10 +55,10 @@ yet been done.
 .PP
 Maybe
 .B mkasciiart
-should take an optional file argument for conversion.
-It currently does not, because it is usually used as
-part of a pipeline; it did not seem worth the hassle
-to add this feature.
+should take an optional file argument for conversion.  It
+currently does not, because it is usually used as part of a
+pipeline; it did not seem worth the (substantial) hassle to
+add this feature.
 .SH AUTHOR
 Bart Massey <bart@cs.pdx.edu>
 .SH "SEE ALSO"
