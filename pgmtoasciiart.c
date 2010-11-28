@@ -85,7 +85,7 @@ static char shadechar(unsigned int g, unsigned int nscale) {
     
     g >>= gscale;
     w = g / (float) nscale;
-    if (reverse)
+    if (!reverse)
         w = 1.0 - w;
     if (!clamp)
         w *= shade[94].w;
