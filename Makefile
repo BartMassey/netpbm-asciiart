@@ -19,7 +19,7 @@ INSTALL = install
 SRC = asciiarttopbm.c pgmtoasciiart.c mkasciiart.sh \
       glyphshades.c glyphshades.h shades.c
 
-MISC = Makefile COPYING README TODO mkdist.sh
+MISC = Makefile COPYING README mkdist.sh
 
 TARGETS = asciiarttopbm pgmtoasciiart
 MANPAGES = asciiarttopbm.1 asciiarttopgm.1 pgmtoasciiart.1 mkasciiart.1
