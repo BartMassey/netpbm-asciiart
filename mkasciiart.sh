@@ -13,6 +13,7 @@ WIDTH=132
 PREVIEW=false
 REVERSE=""
 FONT_TAG=""
+NORM=false
 
 SCALER=pnmscale
 UNSCALER=pnmscale
@@ -56,8 +57,16 @@ do
 	PWIDTH=$2
 	shift 2
 	;;
+    -norm)
+	NORM=true
+	shift
+	;;
     -*)
 	break
+	;;
+    *)
+	echo "$USAGE" >&2
+	exit 1
 	;;
     esac
 done
@@ -65,7 +74,12 @@ done
 ppmtopgm |
 $SCALER -xscale $YSCALE -yscale 1.0 |
 $SCALER -width "$WIDTH" |
-pnmnorm -quiet -wpercent 3 -bpercent 3 >$TMP
+if $NORM
+then
+    pnmnorm -quiet -wpercent 3 -bpercent 3
+else
+    cat
+fi >$TMP
 pnmquant -nofs -meanpixel 99 $TMP 2>/dev/null |
 if $PREVIEW
 then
