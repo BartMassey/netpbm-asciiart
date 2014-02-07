@@ -10,10 +10,11 @@
 #include <math.h>
 #include <pbm.h>
 #include <pgm.h>
-#ifdef DEBIAN
-#define optParseOptions3 pm_optParseOptions3
-#else
+#ifndef DEBIAN
 #include <shhopt.h>
+#endif
+#if defined(DEBIAN) || !defined(STRIP_PM_OPT)
+#define optParseOptions3 pm_optParseOptions3
 #endif
 #include <stdio.h>
 #include <stdlib.h>

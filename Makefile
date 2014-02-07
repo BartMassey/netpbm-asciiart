@@ -4,13 +4,13 @@
 # Please see the file COPYING in the source
 # distribution of this software for license terms.
 
-DESTDIR = /usr/local
-INCLUDE = -I$(DESTDIR)/include
+DESTDIR = /local/apps/netpbm
+INCLUDE = -I$(DESTDIR)/include -I$(DESTDIR)/include/netpbm
 # Uncomment for Debian's ancient netpbm-dev
 #DEFINE = -DDEBIAN
 CDEBUG = -O2
 CFLAGS = $(CDEBUG) -Wall $(INCLUDE) $(DEFINE)
-LIB = -L$(DESTDIR)/lib -lnetpbm -lm
+LIB = -L$(DESTDIR)/link -lnetpbm -lm
 
 PACKAGE = netpbm-asciiart
 

@@ -71,7 +71,7 @@ do
     esac
 done
 
-ppmtopgm |
+# ppmtopgm |
 $SCALER -xscale $YSCALE -yscale 1.0 |
 $SCALER -width "$WIDTH" |
 if $NORM
