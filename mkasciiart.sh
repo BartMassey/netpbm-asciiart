@@ -6,7 +6,7 @@
 # distribution of this software for license terms.
 PGM="`basename $0`"
 USAGE="$PGM: usage: ... | $PGM [-width <width>] [-yscale <yscale>]\
-    [-preview <width>] [<pgmtoascii-args>]"
+    [-preview <width>] [-norm] [-rotate] [<pgmtoascii-args>]"
 
 YSCALE=2.5
 WIDTH=132
@@ -22,6 +22,8 @@ then
     SCALER="pamscale -filter=sinc"
     UNSCALER="pamscale -nomix"
 fi
+
+ROTATE=false
 
 TMP=/tmp/mkasciiart.$$
 trap "rm -f $TMP" 0 1 2 3 15
@@ -61,6 +63,10 @@ do
 	NORM=true
 	shift
 	;;
+    -rotate)
+        ROTATE=true
+        shift
+        ;;
     -*)
 	break
 	;;
@@ -72,6 +78,12 @@ do
 done
 
 # ppmtopgm |
+if $ROTATE
+then
+    pnmflip -cw
+else
+    cat
+fi |
 $SCALER -xscale $YSCALE -yscale 1.0 |
 $SCALER -width "$WIDTH" |
 if $NORM

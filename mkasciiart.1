@@ -46,6 +46,20 @@ before final conversion to ASCII.  Mostly useful for
 debugging. Do not pass any
 .B pgmtoasciiart
 arguments along with this flag.
+.TP
+.B "-norm"
+Calls
+.BR pnmnorm (1)
+to do contrast normalization on the grayscale image. Not
+normally (hah hah) recommended: hand tune the grayscale with
+a contrast editor instead.
+.TP
+.B "-rotate"
+Rotates the image clockwise 90 degrees using
+.BR pnmflip (1)
+before scaling and conversion. Gives better resolution for
+images with short-wide aspect ratios; great for printing
+on blue-bar.
 .SH BUGS
 .PP
 The \fIyscale\fP should be automatically derived from the
