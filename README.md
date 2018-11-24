@@ -8,8 +8,7 @@ Copyright (c) 1990 Bart Massey
      through <tt>asciiartopgm</tt></i>
 </caption>
 <tr>
-<td>
-<pre style="font-size: 3pt; line-height:130%">
+<td><pre style="font-size:3pt;line-height:130%">
                                                           `                                                                         
                                                  ``````     ````````` ``````                                                        
                                             ```        `   `                  ````````````                                          
