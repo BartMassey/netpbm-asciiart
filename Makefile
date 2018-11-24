@@ -4,13 +4,21 @@
 # Please see the file COPYING in the source
 # distribution of this software for license terms.
 
-DESTDIR = /local/apps/netpbm
-INCLUDE = -I$(DESTDIR)/include -I$(DESTDIR)/include/netpbm
-# Uncomment for Debian's ancient netpbm-dev
-#DEFINE = -DDEBIAN
-CDEBUG = -O2
+CC = gcc
+CDEBUG = -O4
 CFLAGS = $(CDEBUG) -Wall $(INCLUDE) $(DEFINE)
-LIB = -L$(DESTDIR)/link -lnetpbm -lm
+
+DESTDIR = /usr/local
+
+# Default is Debian libnetpbm11-dev, currently in
+# experimental.
+INCLUDE = -I/usr/include/netpbm
+LIB = -lnetpbm -lm
+# Uncomment for sourceforge netpbm.
+#INCLUDE = -I$(DESTDIR)/include -I$(DESTDIR)/include/netpbm
+#LIB = -L$(DESTDIR)/link -lnetpbm -lm
+# Uncomment for Debian's libnetpbm10-dev
+#DEFINE = -DDEBIAN
 
 PACKAGE = netpbm-asciiart
 
